@@ -1,6 +1,5 @@
-import MySQLdb as sql
-import hashlib
-
+from flask import abort, jsonify
+from psycopg2 import sql
 import db
 
 
@@ -11,11 +10,12 @@ tabels['Users'] = '''CREATE TABLE `Users` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
   `firstName` tinytext NOT NULL,
   `lastName` tinytext NOT NULL,
-  `email` text NOT NULL,
+  `email` varchar(256) NOT NULL DEFAULT '',
   `phone` int(10) DEFAULT NULL,
   `password` text NOT NULL,
-  PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`userId`),
+  UNIQUE KEY `Unique User` (`userId`,`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 '''
 
 tabels['Roles'] = '''CREATE TABLE `Roles` (
@@ -38,10 +38,16 @@ tabels['UserRoles'] = '''CREATE TABLE `UserRoles` (
 
 
 
-def check():
+def check(userId):
     conn = db.conn()
-    cursor = conn.cursor(db.DictCursor)
+    cursor = conn.cursor()
 
-    cursor.execute('select * from Users;')
+    cursor.execute('select * from Users where userID = %s;', [userId])
+    conn.close()
 
-    return cursor.fetchall()
+    user = cursor.fetchone()
+
+    if user is None:
+        abort(401, description='No user found')
+    else:
+        return user
