@@ -3,3 +3,4 @@ Jinja2
 boto3
 pytest
 jsonify
+mysqlclient

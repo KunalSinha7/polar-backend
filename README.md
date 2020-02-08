@@ -23,4 +23,4 @@ The above allows lazy loading without rerunning the dev server.
 nose2 -v
 ```
 
-To make new test cases the filename must start with ```test_``` and methodnames must start with ```test_```.
+To make new test cases the filename must start with ```test_``` and method names must start with ```test_```.
