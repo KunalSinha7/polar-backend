@@ -25,5 +25,4 @@ jobs:
 
     - name: Nose2
       run: |
-        pip install nose
         nose2 -v
