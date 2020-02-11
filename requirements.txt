@@ -6,3 +6,4 @@ jsonify
 mysqlclient
 passlib
 nose2
+pyjwt

@@ -3,14 +3,17 @@ from passlib.hash import pbkdf2_sha256
 import hashlib
 
 import user.db as db
-
+import auth.jwt
 
 user = Blueprint('user', __name__)
 
 
 @user.route('/login', methods=['POST'])
 def login():
-    db.test()
+
+    if 'Authorization' in request.headers:
+        print(auth.jwt.check_jwt(request.headers.get('Authorization')))
+
     return 'login route'
 
 
