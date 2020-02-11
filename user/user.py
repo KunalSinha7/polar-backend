@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request, abort
-from passlib.hash import pbkdf2_sha256
 import hashlib
 
 import user.db as db
+import auth
 import auth.jwt
 
 user = Blueprint('user', __name__)
@@ -30,8 +30,7 @@ def register():
     if 'password' not in data:
         missing.append('password')
     else:
-        newpass = data['password'] + data['email']
-        data['password'] = hashlib.sha512(str.encode(newpass)).hexdigest()
+        data['password'] = auth.hash_password(data['password'], data['email'])
 
     if len(missing) > 0:
         message = 'Incorrect request, missing' + str(missing)
