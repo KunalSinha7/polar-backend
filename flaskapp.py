@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, jsonify, make_response
-from users import user
+from user import user
 
 import db
 import db.util
@@ -27,13 +27,13 @@ def error():
     return out, 401
 
 
-@app.errorhandler(401)
+@app.errorhandler(400)
 def unauthorized(error):
-	response = make_response(jsonify({'code': 401, 'message': error.description}), 401)
-	
-	
-	return response
+	return make_response(jsonify({'code': 400, 'message': error.description}), 400)
+
+
 
 
 if __name__ == '__main__':
     app.run(threaded=True)
+

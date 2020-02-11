@@ -1,4 +1,5 @@
 from flask import g
+from flask import current_app as app
 import MySQLdb as sql
 from MySQLdb.cursors import DictCursor
 
@@ -26,7 +27,9 @@ def make_test_conn():
             use_unicode=True, charset="utf8mb4")
 
 def conn():
-    if not hasattr(g, 'db_conn'):
+    if hasattr(app, 'testing'):
+        g.db_conn = make_test_conn()
+    elif not hasattr(g, 'db_conn'):
         g.db_conn = make_conn()
 
     return g.db_conn
