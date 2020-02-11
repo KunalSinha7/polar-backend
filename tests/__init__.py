@@ -1,16 +1,27 @@
 import os
 import flaskapp
+from flask import g
+from flaskapp import app
 
 import unittest as ut
+import db.util as db
 
 
 import sys
+import json
 
 
 class BaseTestCase(ut.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(BaseTestCase, cls).setUpClass()
+        db.setupTestDB()
+
     def setUp(self):
         self.app = flaskapp.app.test_client()
-        self.app.testing = True
+        self.app.TESTING = True
+        app.config['TESTING'] = True
+        
 
     def post(self, route, data, headers=None):
         if headers is not None:
@@ -29,6 +40,9 @@ class BaseTestCase(ut.TestCase):
 
     def auth_post(self, route, data=None):
         return self.post(route, data=data, headers=self.make_auth_headers())
+
+
+
 
 
 if __name__ == "__main__":

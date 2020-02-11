@@ -1,27 +1,27 @@
-import MySQLdb as sql
-import hashlib
-
+from flask import abort, jsonify
 import db
-
+import MySQLdb as sql
 
 
 tabels = {}
 
-tabels['Users'] = '''CREATE TABLE `Users` (
-  `userId` int(11) NOT NULL AUTO_INCREMENT,
-  `firstName` tinytext NOT NULL,
-  `lastName` tinytext NOT NULL,
-  `email` text NOT NULL,
-  `phone` int(10) DEFAULT NULL,
-  `password` text NOT NULL,
-  PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-'''
 
 tabels['Roles'] = '''CREATE TABLE `Roles` (
   `roleId` int(11) NOT NULL AUTO_INCREMENT,
   `roleName` text NOT NULL,
   PRIMARY KEY (`roleId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+'''
+
+tabels['Users'] = '''CREATE TABLE `Users` (
+  `userId` int(11) NOT NULL AUTO_INCREMENT,
+  `firstName` tinytext NOT NULL,
+  `lastName` tinytext NOT NULL,
+  `email` varchar(256) NOT NULL DEFAULT '',
+  `phone` int(10) DEFAULT NULL,
+  `password` text NOT NULL,
+  PRIMARY KEY (`userId`),
+  UNIQUE KEY `Unique User` (`userId`,`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
@@ -31,17 +31,71 @@ tabels['UserRoles'] = '''CREATE TABLE `UserRoles` (
   PRIMARY KEY (`roleId`,`userId`),
   KEY `roleId` (`roleId`),
   KEY `userId` (`userId`),
-  CONSTRAINT `roleId` FOREIGN KEY (`roleId`) REFERENCES `Roles` (`roleId`),
-  CONSTRAINT `userId` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`)
+  CONSTRAINT `Role` FOREIGN KEY (`roleId`) REFERENCES `Roles` (`roleId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `User` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+'''
+
+tabels['Event'] = '''CREATE TABLE `Event` (
+  `eventId` int(11) NOT NULL AUTO_INCREMENT,
+  `eventName` varchar(256) NOT NULL DEFAULT '',
+  `time` datetime DEFAULT NULL,
+  `location` text,
+  `description` text,
+  PRIMARY KEY (`eventId`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+'''
+
+tabels['CheckIn'] = '''CREATE TABLE `CheckIn` (
+  `userId` int(11) NOT NULL,
+  `eventId` int(11) NOT NULL,
+  `checkedIn` tinyint(1) NOT NULL,
+  PRIMARY KEY (`userId`,`eventId`),
+  CONSTRAINT `UserToUser` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+'''
+
+tabels['Permissions'] = '''CREATE TABLE `Permissions` (
+  `permissionId` int(11) NOT NULL AUTO_INCREMENT,
+  `permissionName` varchar(99) NOT NULL DEFAULT '',
+  PRIMARY KEY (`permissionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+'''
+
+tabels['PermissionRoles'] = '''CREATE TABLE `PermissionRoles` (
+  `roleId` int(11) NOT NULL,
+  `permissiondId` int(11) NOT NULL,
+  PRIMARY KEY (`roleId`,`permissiondId`),
+  CONSTRAINT `RoleToRole` FOREIGN KEY (`roleId`) REFERENCES `Roles` (`roleId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
 
+def setupTestDB():
+    conn = db.test_conn()
+    cursor = conn.cursor()
 
-def check():
-    conn = db.conn()
-    cursor = conn.cursor(db.DictCursor)
+    # Drops all tabels
+    drop = 'SET FOREIGN_KEY_CHECKS = 0;'
+    for name, cmd in tabels.items():
+        drop = drop + 'drop table if exists {};'.format(name)
 
-    cursor.execute('select * from Users;')
+    drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
 
-    return cursor.fetchall()
+    try:
+        cursor.execute(drop)
+    except sql.Error as e:
+        print(e)
+
+    # Creates all tabels
+    create = ''
+
+    for name, cmd in tabels.items():
+        create = create + cmd
+
+    # print(create)
+
+    try:
+        cursor.execute(create)
+    except sql.Error as e:
+        print(e)
