@@ -1,0 +1,28 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get install python-dev default-libmysqlclient-dev
+        sudo apt-get install python3-dev
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Nose2
+      run: |
+        nose2 -v
