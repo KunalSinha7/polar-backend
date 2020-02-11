@@ -1,9 +1,11 @@
 from flask import g
+from flask import current_app as app
 import MySQLdb as sql
 from MySQLdb.cursors import DictCursor
 
 import db.util
 import config_reader as conf
+import os
 
 config = conf.read("database")
 
@@ -26,7 +28,10 @@ def make_test_conn():
             use_unicode=True, charset="utf8mb4")
 
 def conn():
-    if not hasattr(g, 'db_conn'):
+    if app.config['TESTING'] is True:
+        print('Using testing db')
+        g.db_conn = make_test_conn()
+    elif not hasattr(g, 'db_conn'):
         g.db_conn = make_conn()
 
     return g.db_conn

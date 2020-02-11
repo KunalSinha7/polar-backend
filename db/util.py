@@ -22,7 +22,7 @@ tabels['Users'] = '''CREATE TABLE `Users` (
   `password` text NOT NULL,
   PRIMARY KEY (`userId`),
   UNIQUE KEY `Unique User` (`userId`,`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
 tabels['UserRoles'] = '''CREATE TABLE `UserRoles` (
@@ -80,7 +80,7 @@ def setupTestDB():
     for name, cmd in tabels.items():
         drop = drop + 'drop table if exists {};'.format(name)
 
-    drop = 'SET FOREIGN_KEY_CHECKS = 1;'
+    drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
 
     try:
         cursor.execute(drop)
@@ -92,7 +92,10 @@ def setupTestDB():
 
     for name, cmd in tabels.items():
         create = create + cmd
+
+    # print(create)
+
     try:
-        cursor.execute(cmd)
+        cursor.execute(create)
     except sql.Error as e:
         print(e)

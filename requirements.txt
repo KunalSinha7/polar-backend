@@ -4,4 +4,6 @@ boto3
 pytest
 jsonify
 mysqlclient
+passlib
 nose2
+pyjwt

@@ -1,18 +1,27 @@
 import os
 import flaskapp
+from flask import g
+from flaskapp import app
 
 import unittest as ut
 import db.util as db
 
 
 import sys
+import json
 
 
 class BaseTestCase(ut.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(BaseTestCase, cls).setUpClass()
+        db.setupTestDB()
+
     def setUp(self):
         self.app = flaskapp.app.test_client()
-        self.app.testing = True
-        db.setupTestDB()
+        self.app.TESTING = True
+        app.config['TESTING'] = True
+        
 
     def post(self, route, data, headers=None):
         if headers is not None:
