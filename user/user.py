@@ -10,20 +10,13 @@ user = Blueprint('user', __name__)
 
 @user.route('/login', methods=['POST'])
 def login():
-
-    if 'Authorization' in request.headers:
-        print(auth.jwt.check_jwt(request.headers.get('Authorization')))
-
     return 'login route'
 
 
 @user.route('/register', methods= ['POST'])
 def register():
     data = request.get_json()
-    register = []
     missing = []
-
-
 
     if 'firstName' not in data:
         missing.append('firstName')
@@ -40,14 +33,14 @@ def register():
         newpass = data['password'] + data['email']
         data['password'] = hashlib.sha512(str.encode(newpass)).hexdigest()
 
-
     if len(missing) > 0:
         message = 'Incorrect request, missing' + str(missing)
         abort(400, message)
 
     user_id = db.create_user(data)
+    jwt = auth.jwt.make_jwt(user_id)
 
-    return jsonify(user_id)
+    return jsonify({'Authorization': jwt})
 
 
 

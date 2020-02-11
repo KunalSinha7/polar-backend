@@ -17,11 +17,9 @@ def create_user(data):
     else:
         cursor.execute(create_user_cmd_phone, [data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
     
-
     user_id = cursor.lastrowid
     conn.commit()
     return user_id
-
 
 def test():
     conn = db.conn()

@@ -5,6 +5,7 @@ from MySQLdb.cursors import DictCursor
 
 import db.util
 import config_reader as conf
+import os
 
 config = conf.read("database")
 
@@ -27,7 +28,8 @@ def make_test_conn():
             use_unicode=True, charset="utf8mb4")
 
 def conn():
-    if hasattr(app, 'testing'):
+    if app.config['TESTING'] is True:
+        print('Using testing db')
         g.db_conn = make_test_conn()
     elif not hasattr(g, 'db_conn'):
         g.db_conn = make_conn()

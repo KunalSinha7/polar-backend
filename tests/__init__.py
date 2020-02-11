@@ -1,6 +1,7 @@
 import os
 import flaskapp
-
+from flask import g
+from flaskapp import app
 
 import unittest as ut
 import db.util as db
@@ -18,8 +19,8 @@ class BaseTestCase(ut.TestCase):
 
     def setUp(self):
         self.app = flaskapp.app.test_client()
-        self.app.testing = True
-
+        self.app.TESTING = True
+        app.config['TESTING'] = True
         
 
     def post(self, route, data, headers=None):
