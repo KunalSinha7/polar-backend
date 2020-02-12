@@ -10,6 +10,9 @@ user = Blueprint('user', __name__)
 
 @user.route('/login', methods=['POST'])
 def login():
+    data = request.get_json()
+    data['password'] = auth.hash_password(data['password'], data['email'])
+    resp = db.login(data)
     return 'login route'
 
 

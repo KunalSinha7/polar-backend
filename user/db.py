@@ -30,6 +30,16 @@ def create_user(data):
     conn.commit()
     return user_id
 
+def login():
+    conn = db.conn()
+    cursor = conn.cursor()
+    login_cmd = 'SELECT * FROM Users WHERE email = %s AND password = %s;'
+    cursor.execute(login_cmd, data['email'], data['password'])
+    # prepare response
+    conn.close()
+    return res
+    
+
 def test():
     conn = db.conn()
     cursor = conn.cursor()
