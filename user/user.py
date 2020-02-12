@@ -16,7 +16,14 @@ def login():
     return 'login route'
 
 
-@user.route('/register', methods= ['POST'])
+@user.route('/logout', methods=['POST'])
+def logout():
+    data = request.get_json()
+    # invalidate jwt
+    return 'logout'
+
+
+@user.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     missing = []
@@ -45,5 +52,11 @@ def register():
     return jsonify({'Authorization': jwt})
 
 
-
+@user.route('/delete', methods=['POST'])
+def delete():
+    data = request.get_json()
+    db.delete(data)
+    logout()
+    return 'deleted'
+    
 

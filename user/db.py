@@ -30,15 +30,35 @@ def create_user(data):
     conn.commit()
     return user_id
 
-def login():
+
+def login(data):
     conn = db.conn()
     cursor = conn.cursor()
+
     login_cmd = 'SELECT * FROM Users WHERE email = %s AND password = %s;'
+
     cursor.execute(login_cmd, data['email'], data['password'])
-    # prepare response
+    
+    res = cursor.fetch_row(1, 2)
+    
+    cursor.close()
     conn.close()
     return res
+
+
+def delete(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
+    delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
     
+    cursor.execute(delete_user_cmd, data['userId'])
+    cursor.execute(delete_roles_cmd, data['userId'])
+
+    cursor.close()
+    conn.close()
+
 
 def test():
     conn = db.conn()
