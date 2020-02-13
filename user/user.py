@@ -65,3 +65,7 @@ def delete():
     return 'deleted'
     
 
+@user.route('/edit', methods=['POST'])
+def edit():
+    data = request.get_json()
+    
