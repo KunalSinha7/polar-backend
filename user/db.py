@@ -53,8 +53,8 @@ def delete(data):
     delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
     delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
     
-    cursor.execute(delete_user_cmd, data['userId'])
-    cursor.execute(delete_roles_cmd, data['userId'])
+    cursor.execute(delete_user_cmd, [data['userId']])
+    cursor.execute(delete_roles_cmd, [data['userId']])
 
     cursor.close()
     conn.close()

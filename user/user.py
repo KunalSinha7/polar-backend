@@ -12,14 +12,25 @@ user = Blueprint('user', __name__)
 def login():
     data = request.get_json()
     data['password'] = auth.hash_password(data['password'], data['email'])
+    
     res = db.login(data)
+    
+    if res is None:
+        return {
+            'status': False
+        }
+    
     jwt = auth.jwt.make_jwt(res[0])
     resp = {
         'firstName': res[1],
         'lastName': res[2],
-        'Authorization': jwt,
-        'permissions': 'n'
+        'auth': jwt,
+        'permissions': 'n',
+        'status': True
     }
+    c = auth.jwt.check_jwt(resp['auth'])
+    print(c)
+    ### BBBB^
     return resp
 
 
@@ -55,8 +66,7 @@ def register():
 @user.route('/delete', methods=['POST'])
 def delete():
     data = request.get_json()
-    db.delete(data)
-    logout()
+    # db.delete(data)
     return 'deleted'
     
 
