@@ -18,27 +18,21 @@ def make_jwt(user_id):
 
 
 def check_jwt(token):
-    res = {
-        'status': False,
-        'message': None
-    }
-    
     try:
         decode = jwt.decode(token, app.secret_key, algorithms=['HS256'])
     except jwt.InvalidSignatureError:
-        res['message'] = 'Signature verification failed'
-        return res
+        abort(401, "Signature verification failed")
     except jwt.InvalidAlgorithmError:
-        res['message'] = 'The specified algorithm is not allowed'
-        return res
+        abort(401, "The specified algorithm is not allowed")
     except jwt.DecodeError:
-        res['message'] = 'Invalid token type'
-        return res
+        abort(401, "Invalid token type")
     except:
-        res['message'] = 'Unknown error'
-        return res
+        abort(401, "Unknown error")
 
-    now = datetime.strptime(decode['timestamp'], '%Y-%m-%d %H:')
-    prtin(now)
+    now = datetime.now()
+    later = datetime.strptime(decode['expiry'], '%Y-%m-%d %H:%M:%S.%f')
 
-    return 1
+    if later < now:
+        abort(401, "Token expired")
+
+    return True

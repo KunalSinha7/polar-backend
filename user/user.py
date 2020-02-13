@@ -16,9 +16,7 @@ def login():
     res = db.login(data)
     
     if res is None:
-        return {
-            'status': False
-        }
+        abort(400, "Incorrect credentials provided")
     
     jwt = auth.jwt.make_jwt(res[0])
     resp = {
@@ -26,11 +24,8 @@ def login():
         'lastName': res[2],
         'auth': jwt,
         'permissions': 'n',
-        'status': True
     }
     c = auth.jwt.check_jwt(resp['auth'])
-    print(c)
-    ### BBBB^
     return resp
 
 
@@ -54,7 +49,7 @@ def register():
         data['password'] = auth.hash_password(data['password'], data['email'])
 
     if len(missing) > 0:
-        message = 'Incorrect request, missing' + str(missing)
+        message = 'Incorrect request, missing ' + str(missing)
         abort(400, message)
 
     user_id = db.create_user(data)
