@@ -35,4 +35,4 @@ def check_jwt(token):
     if later < now:
         abort(401, "Token expired")
 
-    return True
+    return decode['userId']

@@ -14,10 +14,7 @@ def login():
     data['password'] = auth.hash_password(data['password'], data['email'])
     
     res = db.login(data)
-    
-    if res is None:
-        abort(400, "Incorrect credentials provided")
-    
+
     jwt = auth.jwt.make_jwt(res[0])
     resp = {
         'firstName': res[1],

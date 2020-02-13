@@ -40,6 +40,9 @@ def login(data):
     cursor.execute(login_cmd, [data['email'], data['password']])
     
     res = cursor.fetchone()
+
+    if res is None:
+        abort(400, "Incorrect credentials provided")
     
     cursor.close()
     conn.close()
