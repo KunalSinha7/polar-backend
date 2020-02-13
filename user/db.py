@@ -21,7 +21,7 @@ def create_user(data):
         abort(400, description='Email is already assigned')
 
 
-    if len(data) is 4:
+    if len(data) == 4:
         cursor.execute(create_user_cmd_no_phone, [data['firstName'], data['lastName'], data['email'], data['password']])
     else:
         cursor.execute(create_user_cmd_phone, [data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
@@ -37,9 +37,9 @@ def login(data):
 
     login_cmd = 'SELECT * FROM Users WHERE email = %s AND password = %s;'
 
-    cursor.execute(login_cmd, data['email'], data['password'])
+    cursor.execute(login_cmd, [data['email'], data['password']])
     
-    res = cursor.fetch_row(1, 2)
+    res = cursor.fetchone()
     
     cursor.close()
     conn.close()

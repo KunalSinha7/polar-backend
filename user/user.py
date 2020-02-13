@@ -12,15 +12,15 @@ user = Blueprint('user', __name__)
 def login():
     data = request.get_json()
     data['password'] = auth.hash_password(data['password'], data['email'])
-    resp = db.login(data)
-    return 'login route'
-
-
-@user.route('/logout', methods=['POST'])
-def logout():
-    data = request.get_json()
-    # invalidate jwt
-    return 'logout'
+    res = db.login(data)
+    jwt = auth.jwt.make_jwt(res[0])
+    resp = {
+        'firstName': res[1],
+        'lastName': res[2],
+        'Authorization': jwt,
+        'permissions': 'n'
+    }
+    return resp
 
 
 @user.route('/register', methods=['POST'])
