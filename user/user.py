@@ -25,7 +25,6 @@ def login():
         'auth': jwt,
         'permissions': 'n',
     }
-    c = auth.jwt.check_jwt(resp['auth'])
     return resp
 
 
