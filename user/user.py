@@ -25,7 +25,6 @@ def login():
         'auth': jwt,
         'permissions': 'n',
     }
-    c = auth.jwt.check_jwt(resp['auth'])
     return resp
 
 
@@ -58,14 +57,35 @@ def register():
     return jsonify({'Authorization': jwt})
 
 
+@user.route('getInfo', methods=['POST'])
+def getInfo():
+    data = request.get_json()
+    userId = auth.jwt.check_jwt(data['auth'])
+    res = db.getInfo(userId)
+    
+    resp = {
+        'firstName': res[1],
+        'lastName': res[2],
+        'email': res[3],
+        'phone': res[4]
+    }
+
+    return resp
+
+
+@user.route('/setInfo', methods=['POST'])
+def setInfo():
+    data = request.get_json()
+    userId = auth.jwt.check_jwt(data['auth'])
+    
+
+
+    return 'edited'    
+
+
 @user.route('/delete', methods=['POST'])
 def delete():
     data = request.get_json()
     # db.delete(data)
     return 'deleted'
-    
-
-@user.route('/edit', methods=['POST'])
-def edit():
-    data = request.get_json()
     

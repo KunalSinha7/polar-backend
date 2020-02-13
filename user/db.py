@@ -45,6 +45,20 @@ def login(data):
     conn.close()
     return res
 
+def getInfo(userId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    get_info_cmd = 'SELECT * FROM Users WHERE userId = %s;'
+
+    cursor.execute(get_info_cmd, [userId])
+
+    res = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+    return res
+
 
 def delete(data):
     conn = db.conn()
