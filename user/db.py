@@ -21,7 +21,7 @@ def create_user(data):
         abort(400, description='Email is already assigned')
 
 
-    if len(data) is 4:
+    if len(data) == 4:
         cursor.execute(create_user_cmd_no_phone, [data['firstName'], data['lastName'], data['email'], data['password']])
     else:
         cursor.execute(create_user_cmd_phone, [data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
@@ -29,6 +29,39 @@ def create_user(data):
     user_id = cursor.lastrowid
     conn.commit()
     return user_id
+
+
+def login(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    login_cmd = 'SELECT * FROM Users WHERE email = %s AND password = %s;'
+
+    cursor.execute(login_cmd, [data['email'], data['password']])
+    
+    res = cursor.fetchone()
+
+    if res is None:
+        abort(400, "Incorrect credentials provided")
+    
+    cursor.close()
+    conn.close()
+    return res
+
+
+def delete(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
+    delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
+    
+    cursor.execute(delete_user_cmd, [data['userId']])
+    cursor.execute(delete_roles_cmd, [data['userId']])
+
+    cursor.close()
+    conn.close()
+
 
 def test():
     conn = db.conn()

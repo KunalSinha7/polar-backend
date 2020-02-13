@@ -30,11 +30,14 @@ def test():
     return jsonify(out)
 
 
-
-
 @app.errorhandler(400)
-def unauthorized(error):
+def bad_request(error):
 	return make_response(jsonify({'code': 400, 'message': error.description}), 400)
+
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return make_response(jsonify({'code': 401, 'message': error.description}), 401)
 
 
 if __name__ == '__main__':

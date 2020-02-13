@@ -10,10 +10,22 @@ user = Blueprint('user', __name__)
 
 @user.route('/login', methods=['POST'])
 def login():
-    return 'login route'
+    data = request.get_json()
+    data['password'] = auth.hash_password(data['password'], data['email'])
+    
+    res = db.login(data)
+
+    jwt = auth.jwt.make_jwt(res[0])
+    resp = {
+        'firstName': res[1],
+        'lastName': res[2],
+        'auth': jwt,
+        'permissions': 'n',
+    }
+    return resp
 
 
-@user.route('/register', methods= ['POST'])
+@user.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     missing = []
@@ -33,7 +45,7 @@ def register():
         data['password'] = auth.hash_password(data['password'], data['email'])
 
     if len(missing) > 0:
-        message = 'Incorrect request, missing' + str(missing)
+        message = 'Incorrect request, missing ' + str(missing)
         abort(400, message)
 
     user_id = db.create_user(data)
@@ -42,5 +54,10 @@ def register():
     return jsonify({'Authorization': jwt})
 
 
-
+@user.route('/delete', methods=['POST'])
+def delete():
+    data = request.get_json()
+    # db.delete(data)
+    return 'deleted'
+    
 
