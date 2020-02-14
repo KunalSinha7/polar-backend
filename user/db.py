@@ -45,6 +45,7 @@ def login(data):
     conn.close()
     return res
 
+
 def getInfo(userId):
     conn = db.conn()
     cursor = conn.cursor()
@@ -58,6 +59,24 @@ def getInfo(userId):
     cursor.close()
     conn.close()
     return res
+
+
+def setInfo(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    edit_cmd = 'UPDATE Users (firstName, lastName, phone) as (%s, %s, %s)'
+
+    cursor.execute(edit_cmd, [data['firstName'], data['lastName'], data['phone']])
+
+    res = cursor.fetchall()
+    print(res)
+
+    cursor.close()
+    conn.close()
+    return
+
+
 
 
 def delete(data):

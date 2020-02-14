@@ -12,7 +12,7 @@ def make_jwt(user_id):
     encode = jwt.encode({
         'userId': user_id,
         'timestamp': now,
-        'expiry': later
+        'exp': later
     }, app.secret_key, algorithm='HS256').decode("utf-8")
     return encode
 
@@ -20,6 +20,8 @@ def make_jwt(user_id):
 def check_jwt(token):
     try:
         decode = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        abort(401, "Token expired")
     except jwt.InvalidSignatureError:
         abort(401, "Signature verification failed")
     except jwt.InvalidAlgorithmError:
@@ -28,11 +30,5 @@ def check_jwt(token):
         abort(401, "Invalid token type")
     except:
         abort(401, "Unknown error")
-
-    now = datetime.now()
-    later = datetime.strptime(decode['expiry'], '%Y-%m-%d %H:%M:%S.%f')
-
-    if later < now:
-        abort(401, "Token expired")
 
     return decode['userId']
