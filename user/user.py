@@ -50,8 +50,14 @@ def register():
 
     user_id = db.create_user(data)
     jwt = auth.jwt.make_jwt(user_id)
+    resp = {
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'auth': jwt,
+        'permissions': 'n',
+    }
 
-    return jsonify({'Authorization': jwt})
+    return resp
 
 
 @user.route('/delete', methods=['POST'])
