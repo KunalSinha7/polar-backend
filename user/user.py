@@ -76,7 +76,7 @@ def getInfo():
 @user.route('/setInfo', methods=['POST'])
 def setInfo():
     data = request.get_json()
-    userId = auth.jwt.check_jwt(data['auth'])
+    data['userId'] = auth.jwt.check_jwt(data['auth'])
     res = db.setInfo(data)
     return 'edited'
 

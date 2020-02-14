@@ -65,11 +65,11 @@ def setInfo(data):
     conn = db.conn()
     cursor = conn.cursor()
 
-    edit_cmd = 'UPDATE Users (firstName, lastName, phone) as (%s, %s, %s)'
+    edit_cmd = 'UPDATE Users SET firstName = %s, lastName = %s, phone = %s WHERE userId = %s;'
 
-    cursor.execute(edit_cmd, [data['firstName'], data['lastName'], data['phone']])
+    cursor.execute(edit_cmd, [data['firstName'], data['lastName'], data['phone'], data['userId']])
 
-    res = cursor.fetchall()
+    res = cursor.fetchone()
     print(res)
 
     cursor.close()
