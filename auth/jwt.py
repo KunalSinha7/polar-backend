@@ -7,12 +7,10 @@ import auth
 import os
 
 def make_jwt(user_id):
-    now = str(datetime.now())
-    later = str(datetime.now() + timedelta(hours=2))
     encode = jwt.encode({
         'userId': user_id,
-        'timestamp': now,
-        'exp': later
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(hours=2)
     }, app.secret_key, algorithm='HS256').decode("utf-8")
     return encode
 
