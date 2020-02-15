@@ -14,20 +14,16 @@ if os.environ.get('config') is None:
     app.config.from_pyfile('../config.cfg')
 
 
+@app.cli.command("makedb")
+def makedb():
+    db.util.setupTestDB()
+
+
 @app.route('/')
 def index():
-    return "Hello from flask"
+    return 'Hello World'
 
 
-@app.route('/test')
-def test():
-    out = {}
-    out['key'] = app.secret_key
-    jwt = auth.jwt.make_jwt(2)
-    out['jwt'] = jwt.decode('utf-8')
-    print(auth.jwt.check_jwt(jwt))
-
-    return jsonify(out)
 
 
 @app.errorhandler(400)

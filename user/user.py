@@ -4,6 +4,7 @@ import hashlib
 import user.db as db
 import auth
 import auth.jwt
+import uuid
 
 user = Blueprint('user', __name__)
 
@@ -52,6 +53,19 @@ def register():
     jwt = auth.jwt.make_jwt(user_id)
 
     return jsonify({'Authorization': jwt})
+
+
+@user.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+
+    if 'email' not in data:
+        abort(400, 'email not in request')
+    else:
+        link = uuid.uuid4()
+
+    return jsonify(link)
+
 
 
 @user.route('/delete', methods=['POST'])

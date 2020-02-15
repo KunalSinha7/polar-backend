@@ -5,15 +5,14 @@ import MySQLdb as sql
 
 tabels = {}
 
-
-tabels['Roles'] = '''CREATE TABLE `Roles` (
+tabels['Roles'] = '''CREATE TABLE IF NOT EXISTS `Roles` (
   `roleId` int(11) NOT NULL AUTO_INCREMENT,
   `roleName` text NOT NULL,
   PRIMARY KEY (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tabels['Users'] = '''CREATE TABLE `Users` (
+tabels['Users'] = '''CREATE TABLE IF NOT EXISTS `Users` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
   `firstName` tinytext NOT NULL,
   `lastName` tinytext NOT NULL,
@@ -25,7 +24,7 @@ tabels['Users'] = '''CREATE TABLE `Users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tabels['UserRoles'] = '''CREATE TABLE `UserRoles` (
+tabels['UserRoles'] = '''CREATE TABLE IF NOT EXISTS `UserRoles` (
   `roleId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   PRIMARY KEY (`roleId`,`userId`),
@@ -36,7 +35,7 @@ tabels['UserRoles'] = '''CREATE TABLE `UserRoles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tabels['Event'] = '''CREATE TABLE `Event` (
+tabels['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
   `eventId` int(11) NOT NULL AUTO_INCREMENT,
   `eventName` varchar(256) NOT NULL DEFAULT '',
   `time` datetime DEFAULT NULL,
@@ -46,7 +45,7 @@ tabels['Event'] = '''CREATE TABLE `Event` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 '''
 
-tabels['CheckIn'] = '''CREATE TABLE `CheckIn` (
+tabels['CheckIn'] = '''CREATE TABLE IF NOT EXISTS `CheckIn` (
   `userId` int(11) NOT NULL,
   `eventId` int(11) NOT NULL,
   `checkedIn` tinyint(1) NOT NULL,
@@ -55,18 +54,29 @@ tabels['CheckIn'] = '''CREATE TABLE `CheckIn` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tabels['Permissions'] = '''CREATE TABLE `Permissions` (
+tabels['Permissions'] = '''CREATE TABLE IF NOT EXISTS `Permissions` (
   `permissionId` int(11) NOT NULL AUTO_INCREMENT,
   `permissionName` varchar(99) NOT NULL DEFAULT '',
   PRIMARY KEY (`permissionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tabels['PermissionRoles'] = '''CREATE TABLE `PermissionRoles` (
+tabels['PermissionRoles'] = '''CREATE TABLE IF NOT EXISTS `PermissionRoles` (
   `roleId` int(11) NOT NULL,
   `permissiondId` int(11) NOT NULL,
   PRIMARY KEY (`roleId`,`permissiondId`),
   CONSTRAINT `RoleToRole` FOREIGN KEY (`roleId`) REFERENCES `Roles` (`roleId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+'''
+
+tabels['Links'] = '''CREATE TABLE IF NOT EXISTS `Links` (
+  `linkId` int(11) NOT NULL AUTO_INCREMENT,
+  `used` tinyint(1) NOT NULL DEFAULT '0',
+  `link` varchar(40) NOT NULL DEFAULT '',
+  `userId` int(11) NOT NULL,
+  PRIMARY KEY (`linkId`),
+  KEY `LInkToUser` (`userId`),
+  CONSTRAINT `LInkToUser` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
@@ -78,6 +88,7 @@ def setupTestDB():
     # Drops all tabels
     drop = 'SET FOREIGN_KEY_CHECKS = 0;'
     for name, cmd in tabels.items():
+        #drop = drop + 'TRUNCATE table {};'.format(name)
         drop = drop + 'drop table if exists {};'.format(name)
 
     drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
