@@ -73,13 +73,14 @@ def setInfo(data):
     cursor.execute(edit_cmd, [data['firstName'], data['lastName'], data['phone'], data['userId']])
 
     res = cursor.fetchone()
-    print(res)
-    res = cursor.fetchone()
-    print(res)
 
+    if res is not None:
+        abort(400, res)
+
+    conn.commit()
     cursor.close()
     conn.close()
-    return
+    return True
 
 
 

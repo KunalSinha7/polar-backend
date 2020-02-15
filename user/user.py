@@ -81,7 +81,7 @@ def setInfo():
     data = request.get_json()
     data['userId'] = auth.jwt.check_jwt(data['auth'])
     res = db.setInfo(data)
-    return 'edited'
+    return {}
 
 
 @user.route('/delete', methods=['POST'])
