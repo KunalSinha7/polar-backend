@@ -74,6 +74,8 @@ def setInfo(data):
 
     res = cursor.fetchone()
     print(res)
+    res = cursor.fetchone()
+    print(res)
 
     cursor.close()
     conn.close()
