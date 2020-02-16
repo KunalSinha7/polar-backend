@@ -85,7 +85,7 @@ def setInfo():
     return {}
 
 
-@user.route('/reset_password', methods=['POST'])
+@user.route('/resetPassword', methods=['POST'])
 def reset_password():
     data = request.get_json()
 
