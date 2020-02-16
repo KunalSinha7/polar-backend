@@ -59,6 +59,19 @@ tabels['Permissions'] = '''CREATE TABLE IF NOT EXISTS `Permissions` (
   `permissionName` varchar(99) NOT NULL DEFAULT '',
   PRIMARY KEY (`permissionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `Permissions` (`permissionId`, `permissionName`)
+VALUES
+	(1,'fileView'),
+	(2,'fileUpload'),
+	(3,'eventCreate'),
+	(4,'eventCheckIn'),
+	(5,'eventDelete'),
+	(6,'eventMessage'),
+	(7,'message'),
+	(8,'inventoryView'),
+	(9,'inventoryTable'),
+	(10,'inventoryEdit'),
+	(11,'iam');
 '''
 
 tabels['PermissionRoles'] = '''CREATE TABLE IF NOT EXISTS `PermissionRoles` (
