@@ -64,8 +64,8 @@ tabels['Permissions'] = '''CREATE TABLE `Permissions` (
 
 tabels['PermissionRoles'] = '''CREATE TABLE `PermissionRoles` (
   `roleId` int(11) NOT NULL,
-  `permissiondId` int(11) NOT NULL,
-  PRIMARY KEY (`roleId`,`permissiondId`),
+  `permissionId` int(11) NOT NULL,
+  PRIMARY KEY (`roleId`,`permissionId`),
   CONSTRAINT `RoleToRole` FOREIGN KEY (`roleId`) REFERENCES `Roles` (`roleId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
