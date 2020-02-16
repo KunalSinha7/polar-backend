@@ -26,11 +26,13 @@ def createRole(data):
     return True
 
 
-def removeRole(data):
+def removeRole(roleId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    # deletes cascade
+    delete_cmd = 'DELETE FROM Roles WHERE roleId = %s;'
+
+    cursor.execute(delete_cmd, [roleId])
 
     conn.commit()
     cursor.close()
