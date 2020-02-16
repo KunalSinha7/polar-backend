@@ -22,5 +22,5 @@ def removeRole():
     data = request.get_json()
     data['userId'] = auth.jwt.check_jwt(data['auth'])
     # checkPerms (11)
-    db.removeRole(data)
+    # db.removeRole(data)
     return {}

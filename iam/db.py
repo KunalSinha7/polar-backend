@@ -30,7 +30,7 @@ def removeRole(data):
     conn = db.conn()
     cursor = conn.cursor()
 
-    # do deletes cascade?
+    # deletes cascade
 
     conn.commit()
     cursor.close()
