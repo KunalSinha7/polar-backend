@@ -12,12 +12,15 @@ iam = Blueprint('iam', __name__)
 def creatRole():
     data = request.get_json()
     data['userId'] = auth.jwt.check_jwt(data['auth'])
-    
-    # checkPerms (11)
-
+    auth.perm.checkPerms(data['userId'], 11)
     db.createRole(data)
+    return {}
 
 
-
-    return 'created'
-    
+@iam.route('/removeRole', methods=['POST'])
+def removeRole():
+    data = request.get_json()
+    data['userId'] = auth.jwt.check_jwt(data['auth'])
+    # checkPerms (11)
+    db.removeRole(data)
+    return {}

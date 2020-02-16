@@ -24,3 +24,15 @@ def createRole(data):
     cursor.close()
     conn.close()
     return True
+
+
+def removeRole(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    # do deletes cascade?
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return True
