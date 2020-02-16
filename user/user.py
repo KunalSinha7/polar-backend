@@ -84,20 +84,6 @@ def setInfo():
     res = db.setInfo(data)
     return {}
 
-
-@user.route('/resetPassword', methods=['POST'])
-def reset_password():
-    data = request.get_json()
-
-    if 'email' not in data:
-        abort(400, 'email not in request')
-    else:
-        link = uuid.uuid4()
-
-    return jsonify(link)
-
-
-
 @user.route('/delete', methods=['POST'])
 def delete():
     data = request.get_json()
