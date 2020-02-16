@@ -51,8 +51,38 @@ def register():
 
     user_id = db.create_user(data)
     jwt = auth.jwt.make_jwt(user_id)
+    resp = {
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'auth': jwt,
+        'permissions': 'n',
+    }
 
-    return jsonify({'Authorization': jwt})
+    return resp
+
+
+@user.route('getInfo', methods=['POST'])
+def getInfo():
+    data = request.get_json()
+    userId = auth.jwt.check_jwt(data['auth'])
+    res = db.getInfo(userId)
+    
+    resp = {
+        'firstName': res[1],
+        'lastName': res[2],
+        'email': res[3],
+        'phone': res[4]
+    }
+
+    return resp
+
+
+@user.route('/setInfo', methods=['POST'])
+def setInfo():
+    data = request.get_json()
+    data['userId'] = auth.jwt.check_jwt(data['auth'])
+    res = db.setInfo(data)
+    return {}
 
 
 @user.route('/reset_password', methods=['POST'])
@@ -74,4 +104,3 @@ def delete():
     # db.delete(data)
     return 'deleted'
     
-
