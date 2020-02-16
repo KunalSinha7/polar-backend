@@ -17,6 +17,4 @@ def checkPerms(userId, perm):
     if res is None:
         abort(401, "Insufficient privileges")
 
-    cursor.close()
-    conn.close()
     return True

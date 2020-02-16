@@ -12,7 +12,7 @@ iam = Blueprint('iam', __name__)
 def creatRole():
     data = request.get_json()
     data['userId'] = auth.jwt.check_jwt(data['auth'])
-    auth.perm.checkPerms(data['userId'], 11)
+    auth.perms.checkPerms(data['userId'], 11)
     db.createRole(data)
     return {}
 
