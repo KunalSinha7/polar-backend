@@ -49,6 +49,45 @@ def login(data):
     return res
 
 
+def getInfo(userId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    get_info_cmd = 'SELECT * FROM Users WHERE userId = %s;'
+
+    cursor.execute(get_info_cmd, [userId])
+
+    res = cursor.fetchone()
+
+    if res is None:
+        abort(400, "User doesn't exit")
+
+    cursor.close()
+    conn.close()
+    return res
+
+
+def setInfo(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    edit_cmd = 'UPDATE Users SET firstName = %s, lastName = %s, phone = %s WHERE userId = %s;'
+
+    cursor.execute(edit_cmd, [data['firstName'], data['lastName'], data['phone'], data['userId']])
+
+    res = cursor.fetchone()
+
+    if res is not None:
+        abort(400, res)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return True
+
+
+
+
 def delete(data):
     conn = db.conn()
     cursor = conn.cursor()
