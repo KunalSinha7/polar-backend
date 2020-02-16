@@ -62,6 +62,7 @@ def register():
 
 
 @user.route('getInfo', methods=['POST'])
+@auth.login_required
 def getInfo():
     data = request.get_json()
     userId = auth.jwt.check_jwt(data['auth'])
