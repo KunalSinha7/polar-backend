@@ -14,9 +14,9 @@ if os.environ.get('config') is None:
     app.config.from_pyfile('../config.cfg')
 
 
-@app.cli.command("makedb")
+@app.cli.command("resetdb")
 def makedb():
-    db.util.setupTestDB()
+    db.util.resetDB()
 
 
 @app.route('/')
