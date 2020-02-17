@@ -10,3 +10,4 @@ pyjwt
 awscli
 configparser
 flask_cors
+pytest
