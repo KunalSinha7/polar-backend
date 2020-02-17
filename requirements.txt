@@ -11,3 +11,4 @@ awscli
 configparser
 flask_cors
 pytest
+pytest-ordering
