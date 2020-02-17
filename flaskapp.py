@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, jsonify, make_response
 from user import user
+from flask_cors import CORS
 
 import os
 import db
@@ -8,7 +9,7 @@ import auth.jwt
 
 app = Flask(__name__)
 app.register_blueprint(user.user, url_prefix='/user')
-
+CORS(app)
 
 if os.environ.get('config') is None:
     app.config.from_pyfile('../config.cfg')
