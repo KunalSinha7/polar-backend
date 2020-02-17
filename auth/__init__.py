@@ -10,14 +10,14 @@ def hash_password(password, salt):
     return hashlib.sha512(str.encode(password + salt)).hexdigest()
 
 
-def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs): 
-        print('Login Required')
-        if not request.headers['auth']:
-            abort(401, message='No authorization')
-        else:
-            g.user = auth.jwt.check_jwt(request.headers['auth'])
-        return f(*args, **kwargs)
-   
-    return wrap
+def login_required(perm):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            print(perm)
+
+            #put code here
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
