@@ -9,3 +9,4 @@ nose2
 pyjwt
 awscli
 configparser
+flask_cors
