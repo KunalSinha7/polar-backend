@@ -8,3 +8,4 @@ passlib
 nose2
 pyjwt
 awscli
+configparser

@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, jsonify, make_response
 from user import user
+from flask_cors import CORS
 
 import os
 import db
@@ -8,26 +9,22 @@ import auth.jwt
 
 app = Flask(__name__)
 app.register_blueprint(user.user, url_prefix='/user')
-
+CORS(app)
 
 if os.environ.get('config') is None:
     app.config.from_pyfile('../config.cfg')
 
 
+@app.cli.command("resetdb")
+def makedb():
+    db.util.resetDB()
+
+
 @app.route('/')
 def index():
-    return "Hello from flask"
+    return 'Hello World'
 
 
-@app.route('/test')
-def test():
-    out = {}
-    out['key'] = app.secret_key
-    jwt = auth.jwt.make_jwt(2)
-    out['jwt'] = jwt.decode('utf-8')
-    print(auth.jwt.check_jwt(jwt))
-
-    return jsonify(out)
 
 
 @app.errorhandler(400)

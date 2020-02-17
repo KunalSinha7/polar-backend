@@ -4,6 +4,7 @@ import hashlib
 import user.db as db
 import auth
 import auth.jwt
+import uuid
 
 user = Blueprint('user', __name__)
 
@@ -82,7 +83,6 @@ def setInfo():
     data['userId'] = auth.jwt.check_jwt(data['auth'])
     res = db.setInfo(data)
     return {}
-
 
 @user.route('/delete', methods=['POST'])
 def delete():
