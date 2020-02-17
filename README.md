@@ -21,13 +21,13 @@ The above allows lazy loading without rerunning the dev server.
 
 Run all
 ```
-nose2 -v
+pytest -v
 ```
 
 Running specific test cases
 ```
-nose2 -v tests.test_(filename)
-nose2 -v tests.test_(filename).(classname)
+pytest -v test_file.py
+pytest -v -k 'my classifier' i.e. (test_register)
 ```
 
 To make new test cases the filename must start with ```test_```, class names must end with ```TestCase``` and method names must start with ```test_```.
