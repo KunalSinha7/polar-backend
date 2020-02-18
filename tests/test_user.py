@@ -8,6 +8,8 @@ import pytest
 
 class UserTestCase(BaseTestCase):
 
+    auth = None
+
     @pytest.mark.run(order=1)
     def test_register_phone(self):
         response = self.post('/user/register', dict(
@@ -76,3 +78,33 @@ class UserTestCase(BaseTestCase):
             "password": "12ytghrwerh"
         })
         self.assertEqual(response.status_code, 400)
+    
+    def test_info_unauth(self):
+        response = self.post('/user/getInfo', {})
+        self.assertEqual(response.status_code, 401)
+    
+    @pytest.mark.run(order=6)
+    def test_info_auth(self):
+        response = self.post('/user/register', {
+            "firstName": "Waddle",
+            "lastName": "Doo",
+            "email": "wade@polarapp.xyz",
+            "password": "something"
+        })
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('auth', data)
+        self.__class__.auth = data['auth']
+        self.assertIn('permissions', data)
+    
+    @pytest.mark.run(order=7)
+    def test_info_get(self):
+        response = self.post('/user/getInfo', {
+            "auth": self.__class__.auth
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data['firstName'], "Waddle")
+        self.assertEqual(data['lastName'], "Doo")
+        self.assertEqual(data['email'], "wade@polarapp.xyz")
+        self.assertIsNone(data['phone'])

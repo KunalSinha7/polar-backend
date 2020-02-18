@@ -68,6 +68,10 @@ def register():
 @user.route('/getInfo', methods=['POST'])
 def getInfo():
     data = request.get_json()
+    
+    if 'auth' not in data:
+        abort(401, "Missing authorization")
+
     userId = auth.jwt.check_jwt(data['auth'])
     res = db.getInfo(userId)
     
