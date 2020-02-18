@@ -25,8 +25,6 @@ def index():
     return 'Hello World'
 
 
-
-
 @app.errorhandler(400)
 def bad_request(error):
 	return make_response(jsonify({'code': 400, 'message': error.description}), 400)

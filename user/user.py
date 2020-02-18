@@ -12,6 +12,10 @@ user = Blueprint('user', __name__)
 @user.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+
+    if 'email' or 'password' not in data:
+        abort(400, "Missing credentials")
+
     data['password'] = auth.hash_password(data['password'], data['email'])
     
     res = db.login(data)
@@ -61,7 +65,7 @@ def register():
     return resp
 
 
-@user.route('getInfo', methods=['POST'])
+@user.route('/getInfo', methods=['POST'])
 def getInfo():
     data = request.get_json()
     userId = auth.jwt.check_jwt(data['auth'])
@@ -83,6 +87,7 @@ def setInfo():
     data['userId'] = auth.jwt.check_jwt(data['auth'])
     res = db.setInfo(data)
     return {}
+
 
 @user.route('/delete', methods=['POST'])
 def delete():
