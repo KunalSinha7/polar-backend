@@ -13,7 +13,7 @@ user = Blueprint('user', __name__)
 def login():
     data = request.get_json()
 
-    if 'email' or 'password' not in data:
+    if 'email' not in data or 'password' not in data:
         abort(400, "Missing credentials")
 
     data['password'] = auth.hash_password(data['password'], data['email'])

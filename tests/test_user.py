@@ -33,6 +33,7 @@ class UserTestCase(BaseTestCase):
         ))
         self.assertEqual(response.status_code, 200)
     
+    @pytest.mark.run(order=4)
     def test_login_register(self):
         response = self.post('/user/register', {
             "email": "test@polarapp.xyz",
@@ -42,12 +43,12 @@ class UserTestCase(BaseTestCase):
         })
         self.assertIn("auth", response.get_json())
     
+    @pytest.mark.run(order=5)
     def test_login(self):
         response = self.post('/user/login', {
             "email": "test@polarapp.xyz",
             "password": "something",
         })
-        print(response.get_json())
         self.assertIn("auth", response.get_json())
     
     def test_login_wrong_password(self):
@@ -66,4 +67,12 @@ class UserTestCase(BaseTestCase):
     
     def test_login_missing_info(self):
         response = self.post('/user/login', {})
+        self.assertEqual(response.status_code, 400)
+        response = self.post('/user/login', {
+            "email": "random@polarapp.xyz"
+        })
+        self.assertEqual(response.status_code, 400)
+        response = self.post('/user/login', {
+            "password": "12ytghrwerh"
+        })
         self.assertEqual(response.status_code, 400)
