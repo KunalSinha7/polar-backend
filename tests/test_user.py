@@ -82,6 +82,8 @@ class UserTestCase(BaseTestCase):
     def test_info_unauth(self):
         response = self.post('/user/getInfo', {})
         self.assertEqual(response.status_code, 401)
+        response = self.post('/user/setInfo', {})
+        self.assertEqual(response.status_code, 400)
     
     @pytest.mark.run(order=6)
     def test_info_auth(self):
@@ -108,3 +110,29 @@ class UserTestCase(BaseTestCase):
         self.assertEqual(data['lastName'], "Doo")
         self.assertEqual(data['email'], "wade@polarapp.xyz")
         self.assertIsNone(data['phone'])
+
+    @pytest.mark.run(order=8)
+    def test_info_set_missing(self):
+        response = self.post('/user/setInfo', {
+            "auth": self.__class__.auth
+        })
+        self.assertEqual(response.status_code, 400)
+
+    @pytest.mark.run(order=9)
+    def test_info_set_some(self):
+        response = self.post('/user/setInfo', {
+            "auth": self.__class__.auth,
+            "firstName": "James",
+            "phone": "1234567890"
+        })
+        self.assertEqual(response.status_code, 400)
+
+    @pytest.mark.run(order=9)
+    def test_info_set_all(self):
+        response = self.post('/user/setInfo', {
+            "auth": self.__class__.auth,
+            "firstName": "James",
+            "lastName": "Bond",
+            "phone": None
+        })
+        self.assertEqual(response.status_code, 200)

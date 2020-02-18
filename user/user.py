@@ -88,6 +88,10 @@ def getInfo():
 @user.route('/setInfo', methods=['POST'])
 def setInfo():
     data = request.get_json()
+
+    if 'auth' not in data or 'firstName' not in data or 'lastName' not in data or 'phone' not in data:
+        abort(400, "Missing data")
+
     data['userId'] = auth.jwt.check_jwt(data['auth'])
     res = db.setInfo(data)
     return {}
