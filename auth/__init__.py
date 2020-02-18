@@ -16,7 +16,9 @@ def login_required(perms):
             data = request.get_json()
             if 'auth' not in data:
                 abort(401, "Missing authorization")
-            g.auth = auth.jwt.check_jwt(data['auth'])
+            g.userId = auth.jwt.check_jwt(data['auth'])
+            if perms is not None:
+                auth.perms.checkPerms(g.userId, perms)
             return func(*args, **kwargs)
         return wrapper
     return decorator

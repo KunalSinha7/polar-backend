@@ -64,7 +64,7 @@ def register():
 @user.route('getInfo', methods=['POST'])
 @auth.login_required(perms=None)
 def getInfo():
-    res = db.getInfo(g.auth)
+    res = db.getInfo(g.userId)
     
     resp = {
         'firstName': res[1],
@@ -80,7 +80,7 @@ def getInfo():
 @auth.login_required(perms=None)
 def setInfo():
     data = request.get_json()
-    data['userId'] = g.auth
+    data['userId'] = g.userId
     res = db.setInfo(data)
     return {}
 
