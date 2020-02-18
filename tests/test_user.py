@@ -127,7 +127,7 @@ class UserTestCase(BaseTestCase):
         })
         self.assertEqual(response.status_code, 400)
 
-    @pytest.mark.run(order=9)
+    @pytest.mark.run(order=10)
     def test_info_set_all(self):
         response = self.post('/user/setInfo', {
             "auth": self.__class__.auth,
