@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, g
 import hashlib
 
 import user.db as db
@@ -62,11 +62,9 @@ def register():
 
 
 @user.route('getInfo', methods=['POST'])
-@auth.login_required(perm=[1,2])
+@auth.login_required(perms=None)
 def getInfo():
-    data = request.get_json()
-    userId = auth.jwt.check_jwt(data['auth'])
-    res = db.getInfo(userId)
+    res = db.getInfo(g.auth)
     
     resp = {
         'firstName': res[1],
@@ -79,15 +77,17 @@ def getInfo():
 
 
 @user.route('/setInfo', methods=['POST'])
+@auth.login_required(perms=None)
 def setInfo():
     data = request.get_json()
-    data['userId'] = auth.jwt.check_jwt(data['auth'])
+    data['userId'] = g.auth
     res = db.setInfo(data)
     return {}
 
+
 @user.route('/delete', methods=['POST'])
+@auth.login_required(perms=None)
 def delete():
-    data = request.get_json()
     # db.delete(data)
     return 'deleted'
     
