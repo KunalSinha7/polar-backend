@@ -42,7 +42,7 @@ def register():
 
     if 'password' not in data:
         missing.append('password')
-    else:
+    elif 'email' in data:
         data['password'] = auth.hash_password(data['password'], data['email'])
 
     if len(missing) > 0:
