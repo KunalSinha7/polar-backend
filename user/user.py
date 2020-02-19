@@ -29,7 +29,7 @@ def login():
         'auth': jwt,
         'permissions': 'n',
     }
-    return resp
+    return jsonify(resp)
 
 
 @user.route('/register', methods=['POST'])
@@ -64,7 +64,7 @@ def register():
         'permissions': 'n',
     }
 
-    return resp
+    return jsonify(resp)
 
 @user.route('/forgotPassword', methods=['POST'])
 def forgotPassword():
@@ -80,7 +80,7 @@ def forgotPassword():
     message.sendForgotPassword(data['email'], s_link)
     print(str(uuid))
 
-    return 'Sent email to {}'.format(data['email'])
+    return jsonify('Sent email to {}'.format(data['email']))
 
 @user.route('/resetPassword', methods=['POST'])
 def resetPassword():
@@ -104,7 +104,7 @@ def resetPassword():
     user_id = db.checkPasswordToken(data['email'], data['token'])
     db.updatePassword(user_id, auth.hash_password(data['newPassword'], data['email']), data['email'])
 
-    return 'Success'
+    return jsonify('Success')
 
 
 @user.route('/getInfo', methods=['POST'])
@@ -119,7 +119,7 @@ def getInfo():
         'phone': res[4]
     }
 
-    return resp
+    return jsonify(resp)
 
 
 @user.route('/setInfo', methods=['POST'])
@@ -132,7 +132,7 @@ def setInfo():
         abort(400, "Missing data")
 
     res = db.setInfo(data)
-    return {}
+    return jsonify()
 
 
 @user.route('/delete', methods=['POST'])
