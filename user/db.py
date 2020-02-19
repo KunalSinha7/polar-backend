@@ -60,7 +60,7 @@ def getInfo(userId):
     res = cursor.fetchone()
 
     if res is None:
-        abort(400, "User doesn't exit")
+        abort(400, "User doesn't exist")
 
     cursor.close()
     conn.close()
