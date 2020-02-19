@@ -129,6 +129,47 @@ def addLink(userId, link):
         cursor.close()
         conn.close()
 
+check_token_cmd = '''update Links set used = 1 where link = %s and userId =%s and used = 0;'''
+def checkPasswordToken(email, link):
+    user_id = getUserId(email)
+
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(check_token_cmd, [link, user_id])
+
+        if cursor.rowcount != 1:
+            abort(400, 'No found user or link')
+        else:
+            conn.commit()
+    except MySQLdb.IntegrityError:
+        abort(501)
+
+    return user_id
+
+update_password_cmd = '''update Users set password = %s where userId = %s and email = %s;'''
+def updatePassword(user_id, password, email):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    print(password)
+    print(user_id)
+    print(email)
+    
+    try:
+        cursor.execute(update_password_cmd, [password, user_id, email])
+
+        if cursor.rowcount != 1:
+            abort(501, 'Something went wrong in updatePassword')
+        else:
+            conn.commit()
+    except MySQLdb.IntegrityError:
+        abort(501, 'SQL error in updatePassword')
+
+
+    return True
+
 def test():
     conn = db.conn()
     cursor = conn.cursor()

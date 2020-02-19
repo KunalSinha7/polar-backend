@@ -1,18 +1,11 @@
-<<<<<<< HEAD
-from flask import Blueprint, jsonify, request, abort, app
-=======
-from flask import Blueprint, jsonify, request, abort, g
->>>>>>> 85249b178c722ccea2b3fcbf57a909ce2bdafe80
+from flask import Blueprint, jsonify, request, abort, app, g
 import hashlib
 
 import user.db as db
 import auth
 import auth.jwt
-<<<<<<< HEAD
 import message
 
-=======
->>>>>>> 85249b178c722ccea2b3fcbf57a909ce2bdafe80
 import uuid
 
 user = Blueprint('user', __name__)
@@ -73,7 +66,7 @@ def register():
 
     return resp
 
-@user.route('forgotPassword', methods=['POST'])
+@user.route('/forgotPassword', methods=['POST'])
 def forgotPassword():
     data = request.get_json()
 
@@ -85,8 +78,34 @@ def forgotPassword():
     db.addLink(user_id, u_link)
     s_link = 'https://polarapp.xyz/resetPassword?token=' + str(u_link)
     message.sendForgotPassword(data['email'], s_link)
+    print(str(uuid))
 
     return 'Sent email to {}'.format(data['email'])
+
+@user.route('/resetPassword', methods=['POST'])
+def resetPassword():
+    data = request.get_json()
+    missing = []
+
+    if 'email' not in data:
+        missing.append('email')
+    
+    if 'newPassword' not in data:
+        missing.append('newPassword')
+    
+    if 'token' not in data:
+        missing.append('token')
+
+    if len(missing) > 0:
+        message = 'Incorrect request, missing ' + str(missing)
+        abort(400, message)
+
+    
+    user_id = db.checkPasswordToken(data['email'], data['token'])
+    db.updatePassword(user_id, auth.hash_password(data['newPassword'], data['email']), data['email'])
+
+    return 'Success'
+
 
 @user.route('/getInfo', methods=['POST'])
 @auth.login_required(perms=None)
