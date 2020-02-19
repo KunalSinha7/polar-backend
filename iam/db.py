@@ -1,4 +1,5 @@
 from flask import abort
+import MySQLdb
 import db
 
 
@@ -53,10 +54,27 @@ def assignRole(data):
     conn = db.conn()
     cursor = conn.cursor()
 
-    insert_cmd = 'INSERT INTO UserRoles VALUES (%s, %s)'
+    insert_cmd = 'INSERT INTO UserRoles VALUES (%s, %s);'
 
-    cursor.execute(insert_cmd, [roleId, userId])
+    try:
+        cursor.execute(insert_cmd, [data['roleId'], data['userId']])
+    except MySQLdb.IntegrityError:
+        abort(400, "User already has role or does not exists")
 
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return True
+
+
+def revokeRole(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    revoke_cmd = 'DELETE FROM UserRoles WHERE roleId = %s AND userId = %s;'
+
+    cursor.execute(revoke_cmd, [data['roleId'], data['userId']])
+    
     conn.commit()
     cursor.close()
     conn.close()
