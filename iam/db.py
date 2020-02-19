@@ -47,3 +47,17 @@ def removeRole(roleId):
     cursor.close()
     conn.close()
     return True
+
+
+def assignRole(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    insert_cmd = 'INSERT INTO UserRoles VALUES (%s, %s)'
+
+    cursor.execute(insert_cmd, [roleId, userId])
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return True
