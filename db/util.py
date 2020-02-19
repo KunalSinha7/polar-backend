@@ -139,8 +139,6 @@ tables['TableHistory'] = '''CREATE TABLE `TableHistory` (
 '''
 
 
-
-
 def setupTestDB():
     conn = db.test_conn()
     cursor = conn.cursor()
@@ -148,7 +146,7 @@ def setupTestDB():
     # Drops all tables
     drop = 'SET FOREIGN_KEY_CHECKS = 0;'
     for name, cmd in tables.items():
-        #drop = drop + 'TRUNCATE table {};'.format(name)
+        # drop = drop + 'TRUNCATE table {};'.format(name)
         drop = drop + 'drop table if exists {};'.format(name)
 
     drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
@@ -179,7 +177,7 @@ def resetDB():
     # Drops all tables
     drop = 'SET FOREIGN_KEY_CHECKS = 0;'
     for name, cmd in tables.items():
-        #drop = drop + 'TRUNCATE table {};'.format(name)
+        # drop = drop + 'TRUNCATE table {};'.format(name)
         drop = drop + 'drop table if exists {};'.format(name)
 
     drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
