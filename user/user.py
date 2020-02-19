@@ -1,9 +1,12 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, app
 import hashlib
 
 import user.db as db
 import auth
 import auth.jwt
+import message
+
+import uuid
 
 user = Blueprint('user', __name__)
 
@@ -59,6 +62,20 @@ def register():
 
     return resp
 
+@user.route('forgotPassword', methods=['POST'])
+def forgotPassword():
+    data = request.get_json()
+
+    if 'email' not in data:
+        abort(400, 'Missing email')
+    
+    user_id = db.getUserId(data['email'])
+    u_link = uuid.uuid4()
+    db.addLink(user_id, u_link)
+    s_link = 'https://polarapp.xyz/resetPassword?token=' + str(u_link)
+    message.sendForgotPassword(data['email'], s_link)
+
+    return 'Sent email to {}'.format(data['email'])
 
 @user.route('getInfo', methods=['POST'])
 def getInfo():
