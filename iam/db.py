@@ -1,6 +1,7 @@
 from flask import abort
 import db
 
+
 def createRole(data):
     conn = db.conn()
     cursor = conn.cursor()
@@ -19,12 +20,14 @@ def createRole(data):
 
     row = []
     for perm in data["permissions"]:
-        add_perm_cmd += ' (%s, %s)'
-        row.push(roleId)
-        row.push(perm)
-    
+        add_perm_cmd += ' (%s, %s),'
+        row.append(roleId)
+        row.append(perm)
+        
+    add_perm_cmd = add_perm_cmd[:len(add_perm_cmd) - 1]
     add_perm_cmd += ';'
-    cursor.execute(add_perm_cmd, row)
+
+    cursor.execute(add_perm_cmd, tuple(row))
 
     conn.commit()
     cursor.close()
