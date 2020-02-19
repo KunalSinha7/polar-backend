@@ -12,13 +12,13 @@ def make_jwt(user_id):
         'userId': user_id,
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(hours=2)
-    }, app.secret_key, algorithm='HS256').decode("utf-8")
+    }, 'polar', algorithm='HS256').decode("utf-8")
     return encode
 
 
 def check_jwt(token):
     try:
-        decode = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+        decode = jwt.decode(token, 'polar', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         abort(401, "Token expired")
     except jwt.InvalidSignatureError:
