@@ -24,10 +24,10 @@ def create_user(data):
 
     if len(data) == 4:
         cursor.execute(create_user_cmd_no_phone, [
-                       data['firstName'], data['lastName'], data['email'], data['password']])
+            data['firstName'], data['lastName'], data['email'], data['password']])
     else:
         cursor.execute(create_user_cmd_phone, [
-                       data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
+            data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
 
     user_id = cursor.lastrowid
     conn.commit()
@@ -77,7 +77,7 @@ def setInfo(data):
     edit_cmd = 'UPDATE Users SET firstName = %s, lastName = %s, phone = %s WHERE userId = %s;'
 
     cursor.execute(edit_cmd, [data['firstName'],
-                              data['lastName'], data['phone'], data['userId']])
+        data['lastName'], data['phone'], data['userId']])
 
     res = cursor.fetchone()
 
@@ -102,6 +102,7 @@ def delete(data):
 
     cursor.close()
     conn.close()
+
 
 get_user_id_cmd = '''select userId from Users where email = %s;'''
 def getUserId(email):
@@ -129,6 +130,7 @@ def addLink(userId, link):
         cursor.close()
         conn.close()
 
+
 check_token_cmd = '''update Links set used = 1 where link = %s and userId =%s and used = 0;'''
 def checkPasswordToken(email, link):
     user_id = getUserId(email)
@@ -148,15 +150,12 @@ def checkPasswordToken(email, link):
 
     return user_id
 
+
 update_password_cmd = '''update Users set password = %s where userId = %s and email = %s;'''
 def updatePassword(user_id, password, email):
     conn = db.conn()
     cursor = conn.cursor()
 
-    print(password)
-    print(user_id)
-    print(email)
-    
     try:
         cursor.execute(update_password_cmd, [password, user_id, email])
 
@@ -167,8 +166,8 @@ def updatePassword(user_id, password, email):
     except MySQLdb.IntegrityError:
         abort(501, 'SQL error in updatePassword')
 
-
     return True
+
 
 def test():
     conn = db.conn()
