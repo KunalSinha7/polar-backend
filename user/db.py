@@ -86,8 +86,6 @@ def setInfo(data):
     return True
 
 
-
-
 def delete(data):
     conn = db.conn()
     cursor = conn.cursor()

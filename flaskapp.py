@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, jsonify, make_response
 from user import user
 from iam import iam
+from flask_cors import CORS
 
 import os
 import db
@@ -10,7 +11,7 @@ import auth.jwt
 app = Flask(__name__)
 app.register_blueprint(user.user, url_prefix='/user')
 app.register_blueprint(iam.iam, url_prefix='/iam')
-
+CORS(app)
 
 if os.environ.get('config') is None:
     app.config.from_pyfile('../config.cfg')
@@ -24,8 +25,6 @@ def makedb():
 @app.route('/')
 def index():
     return 'Hello World'
-
-
 
 
 @app.errorhandler(400)
