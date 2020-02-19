@@ -1,11 +1,18 @@
+<<<<<<< HEAD
 from flask import Blueprint, jsonify, request, abort, app
+=======
+from flask import Blueprint, jsonify, request, abort, g
+>>>>>>> 85249b178c722ccea2b3fcbf57a909ce2bdafe80
 import hashlib
 
 import user.db as db
 import auth
 import auth.jwt
+<<<<<<< HEAD
 import message
 
+=======
+>>>>>>> 85249b178c722ccea2b3fcbf57a909ce2bdafe80
 import uuid
 
 user = Blueprint('user', __name__)
@@ -14,6 +21,10 @@ user = Blueprint('user', __name__)
 @user.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+
+    if 'email' not in data or 'password' not in data:
+        abort(400, "Missing credentials")
+
     data['password'] = auth.hash_password(data['password'], data['email'])
     
     res = db.login(data)
@@ -77,11 +88,10 @@ def forgotPassword():
 
     return 'Sent email to {}'.format(data['email'])
 
-@user.route('getInfo', methods=['POST'])
+@user.route('/getInfo', methods=['POST'])
+@auth.login_required(perms=None)
 def getInfo():
-    data = request.get_json()
-    userId = auth.jwt.check_jwt(data['auth'])
-    res = db.getInfo(userId)
+    res = db.getInfo(g.userId)
     
     resp = {
         'firstName': res[1],
@@ -94,16 +104,21 @@ def getInfo():
 
 
 @user.route('/setInfo', methods=['POST'])
+@auth.login_required(perms=None)
 def setInfo():
     data = request.get_json()
-    data['userId'] = auth.jwt.check_jwt(data['auth'])
+    data['userId'] = g.userId
+
+    if 'firstName' not in data or 'lastName' not in data or 'phone' not in data:
+        abort(400, "Missing data")
+
     res = db.setInfo(data)
     return {}
 
 
 @user.route('/delete', methods=['POST'])
+@auth.login_required(perms=None)
 def delete():
-    data = request.get_json()
     # db.delete(data)
     return 'deleted'
     

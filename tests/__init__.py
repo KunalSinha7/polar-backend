@@ -9,6 +9,15 @@ import db.util as db
 
 import sys
 import json
+import random
+import string
+
+
+def rand_string(size):
+    return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase) for _ in range(size))
+
+def rand_number(size):
+    return ''.join(random.choice(string.digits) for _ in range(size))
 
 
 class BaseTestCase(ut.TestCase):
@@ -16,6 +25,7 @@ class BaseTestCase(ut.TestCase):
     def setUpClass(cls):
         super(BaseTestCase, cls).setUpClass()
         db.setupTestDB()
+        print('setup')
 
     def setUp(self):
         self.app = flaskapp.app.test_client()
@@ -41,9 +51,19 @@ class BaseTestCase(ut.TestCase):
     def auth_post(self, route, data=None):
         return self.post(route, data=data, headers=self.make_auth_headers())
 
+    def fake_user(self):
+        response = self.post('/user/register', dict(
+            first_name=rand_string(10),
+            last_name=rand_string(10),
+            email = '{}@polarapp.com'.format(rand_string(5)),
+            password = rand_string(20)
+        ))
 
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
 
-
+        self.jwt = data['auth']
+        return response
 
 if __name__ == "__main__":
     ut.main()
