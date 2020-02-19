@@ -1,33 +1,35 @@
 import boto3
 from botocore.exceptions import ClientError
 
+sender = 'Polarapp <mail@polarapp.xyz>'
+aws_region = 'us-east-1'
+charset = 'utf-8'
+email_client = boto3.client('ses', region_name=aws_region)
 
 
-def send():
-    sender = 'Polarapp <mail@polarapp.xyz>'
+def sendForgotPassword(email, link):
     recipients = []
-    recipients.append('will@wborland.com')
-    recipients.append('wborland@purdue.edu')
-    aws_region = 'us-east-1'
-    subject = 'AWS SES Test from polar'
-    body_text = ('This is a test\nnew line\nThanks')
+    recipients.append(email)
+
+
+    subject = 'Forgot your password?'
+
+    body_text = ('Did you forget your password?\nIf you did go to this link:{}').format(link)
     body_html = '''
     <html>
     <head></head>
     <body>
-        <h1>This is a test</h1>
-        <h3>Thanks</h3>
+        <h2>Did you forget your password?</h2>
+        <p>If you did you can click <a href='{}'>here</a> or go to this link: {}</p>
     </body>
     </html>
-    '''
-    charset = 'utf-8'
+    '''.format(link, link)
 
 
-    client = boto3.client('ses', region_name=aws_region)
 
     try:
-        response = client.send_email(
-            Destination={'BccAddresses': recipients,},
+        response = email_client.send_email(
+            Destination={'ToAddresses': recipients,},
             Message={
                 'Body': {
                     'Html': {'Charset':charset, 'Data': body_html,},
