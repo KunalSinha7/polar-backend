@@ -146,8 +146,8 @@ def setupTestDB():
     # Drops all tables
     drop = 'SET FOREIGN_KEY_CHECKS = 0;'
     for name, cmd in tables.items():
-        #drop = drop + 'TRUNCATE table {};'.format(name)
-        drop = drop + 'drop table if exists {};'.format(name)
+        drop = drop + 'TRUNCATE table {};'.format(name)
+        #drop = drop + 'drop table if exists {};'.format(name)
 
     drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
 
