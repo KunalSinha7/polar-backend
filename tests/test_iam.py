@@ -177,3 +177,58 @@ class IAMTestCase(BaseTestCase):
         })
         self.assertEqual(response.status_code, 400)
 
+
+    @pytest.mark.run(order=10)
+    def test_iam_revoke_auth(self):
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "roleId": 1,
+            "userId": 2
+        })
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_iam_revoke_unath(self):
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.unauth,
+            "roleId": 1,
+            "userId": 2
+        })
+        self.assertEqual(response.status_code, 403)
+
+
+    def test_iam_revoke_missing(self):
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "roleId": 1
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "userId": 2
+        })
+        self.assertEqual(response.status_code, 400)
+
+
+    def test_iam_revoke_invalid(self):
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "roleId": 20,
+            "userId": 2
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "roleId": 2,
+            "userId": 220
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.post('/iam/revokeRole', {
+            "auth": self.__class__.auth,
+            "roleId": 1,
+            "userId": 2
+        })
+        self.assertEqual(response.status_code, 200)
