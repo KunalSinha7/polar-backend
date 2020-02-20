@@ -21,10 +21,14 @@ def createRole(data):
 
     row = []
     for perm in data["permissions"]:
-        add_perm_cmd += ' (%s, %s),'
-        row.append(roleId)
-        row.append(perm)
-        
+        if perm > 0 and perm < 12:
+            add_perm_cmd += ' (%s, %s),'
+            row.append(roleId)
+            row.append(perm)
+
+    if len(row) == 0:
+        abort(400, "Specified permissions don't exists")
+
     add_perm_cmd = add_perm_cmd[:len(add_perm_cmd) - 1]
     add_perm_cmd += ';'
 
