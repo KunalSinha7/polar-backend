@@ -39,6 +39,9 @@ def bad_request(error):
 def unauthorized(error):
     return make_response(jsonify({'code': 401, 'message': error.description}), 401)
 
+@app.errorhandler(403)
+def unauthorized(error):
+    return make_response(jsonify({'code': 403, 'message': error.description}), 403)
 
 if __name__ == '__main__':
     app.run(threaded=True)
