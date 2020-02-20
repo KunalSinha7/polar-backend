@@ -2,15 +2,25 @@ from flask import g
 from flask import current_app as app
 import MySQLdb as sql
 from MySQLdb.cursors import DictCursor
-from configparser import SafeConfigParser
+import configparser
 
 import db.util
 import os
 
-parser = SafeConfigParser()
-parser.read('../database.ini')
+
+
+
 
 def make_conn():
+
+	path = ''
+	if os.path.isfile('/home/ubuntu/database.ini'):
+		path = '/home/ubuntu/database.ini'
+	else:
+		path = '../database.ini'
+
+	parser = configparser.ConfigParser()
+	parser.read(path)
 
 	return sql.connect(
     	host=parser.get('database','host'), 
@@ -19,6 +29,15 @@ def make_conn():
     	user=parser.get('database','user'),)
 
 def make_test_conn():
+
+	path = ''
+	if os.path.isfile('/home/ubuntu/database.ini'):
+		path = '/home/ubuntu/database.ini'
+	else:
+		path = '../database.ini'
+
+	parser = configparser.ConfigParser()
+	parser.read(path)
 	return sql.connect(
     	host=parser.get('test_database','host'), 
     	db=parser.get('test_database','name'),
