@@ -26,3 +26,23 @@ def removeRole():
         abort(400, "Missing data")
     db.removeRole(data['roleId'])
     return jsonify()
+
+
+@iam.route('/assignRole', methods=['POST'])
+@auth.login_required(perms=[11])
+def assignRole():
+    data = request.get_json()
+    if 'roleId' not in data or 'userId' not in data:
+        abort(400, "Missing data")
+    db.assignRole(data)
+    return jsonify()
+
+
+@iam.route('/revokeRole', methods=['POST'])
+@auth.login_required(perms=[11])
+def revokeRole():
+    data = request.get_json()
+    if ('roleId') not in data or 'userId' not in data:
+        abort(400, "Missing data")
+    db.revokeRole(data)
+    return jsonify()
