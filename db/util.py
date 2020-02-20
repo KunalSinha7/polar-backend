@@ -2,6 +2,8 @@ from flask import abort, jsonify
 import db
 import MySQLdb as sql
 
+from time import sleep
+
 
 tables = {}
 
@@ -22,9 +24,6 @@ tables['Users'] = '''CREATE TABLE `Users` (
   PRIMARY KEY (`userId`),
   UNIQUE KEY `Unique User` (`userId`,`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-INSERT INTO `Users` (`firstName`, `lastName`, `email`, `phone`, `password`)
-VALUES
-	('Bill','Gates','bill@polarapp.xyz',NULL,'e729b97be60ecf3071f77f25d17025cf9e07fa6195df40143fdde42a2d4713e4e86cff7dc82c108cbc1e1ae0cd96da83cff36886b56a7dbff4271c088884dda7');
 '''
 
 tables['UserRoles'] = '''CREATE TABLE IF NOT EXISTS `UserRoles` (
@@ -62,19 +61,6 @@ tables['Permissions'] = '''CREATE TABLE IF NOT EXISTS `Permissions` (
   `permissionName` varchar(99) NOT NULL DEFAULT '',
   PRIMARY KEY (`permissionId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-INSERT INTO `Permissions` (`permissionId`, `permissionName`)
-VALUES
-	(1,'fileView'),
-	(2,'fileUpload'),
-	(3,'eventCreate'),
-	(4,'eventCheckIn'),
-	(5,'eventDelete'),
-	(6,'eventMessage'),
-	(7,'message'),
-	(8,'inventoryView'),
-	(9,'inventoryTable'),
-	(10,'inventoryEdit'),
-	(11,'iam');
 '''
 
 tables['PermissionRoles'] = '''CREATE TABLE IF NOT EXISTS `PermissionRoles` (
@@ -138,23 +124,66 @@ tables['TableHistory'] = '''CREATE TABLE `TableHistory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
+add_data = {}
+
+add_data['admin'] =''' INSERT INTO Users (firstName, lastName, email, password)
+  VALUES ('admin', 'user', 'admin@polarapp.xyz',
+          '4c0a0c2f206cd7744eef9aa2a8c4a11d9d25e683e3cca1f2030d78228f5b7f894e55456f93c639f084a6c54d1a7fc02e40a7737f598ec69c251c08b6c9d5333d');
+'''
+
+add_data['role'] = '''INSERT INTO Roles (roleName) values ('admin');'''
+add_data['userrole'] = '''insert into UserRoles values (1,1);'''
+
+add_data['permsStatic'] = '''
+INSERT INTO `Permissions` (`permissionId`, `permissionName`)
+VALUES
+    (1,'fileView'),
+    (2,'fileUpload'),
+    (3,'eventCreate'),
+    (4,'eventCheckIn'),
+    (5,'eventDelete'),
+    (6,'eventMessage'),
+    (7,'message'),
+    (8,'inventoryView'),
+    (9,'inventoryTable'),
+    (10,'inventoryEdit'),
+    (11,'iam');
+'''
+
+add_data['perms'] = '''
+  INSERT INTO PermissionRoles VALUES
+    (1, 1),
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (1, 5),
+    (1, 6),
+    (1, 7),
+    (1, 8),
+    (1, 9),
+    (1, 10),
+    (1, 11);'''
+
+
+
+
 
 def setupTestDB():
     conn = db.test_conn()
     cursor = conn.cursor()
 
     # Drops all tables
-    drop = 'SET FOREIGN_KEY_CHECKS = 0;'
+    cursor.execute('SET FOREIGN_KEY_CHECKS = 0;')
     for name, cmd in tables.items():
-        drop = drop + 'TRUNCATE table {};'.format(name)
-        #drop = drop + 'drop table if exists {};'.format(name)
+        cursor.execute('TRUNCATE table {};'.format(name))
 
-    drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
+    cursor.execute('SET FOREIGN_KEY_CHECKS = 1;')
 
-    try:
-        cursor.execute(drop)
-    except sql.Error as e:
-        print(e)
+    for name, cmd in add_data.items():
+        cursor.execute(cmd)
+
+    conn.commit()
+   
 
 
 def resetDB():
@@ -162,27 +191,13 @@ def resetDB():
     cursor = conn.cursor()
 
     # Drops all tables
-    drop = 'SET FOREIGN_KEY_CHECKS = 0;'
+    cursor.execute('SET FOREIGN_KEY_CHECKS = 0;')
     for name, cmd in tables.items():
-        # drop = drop + 'TRUNCATE table {};'.format(name)
-        drop = drop + 'drop table if exists {};'.format(name)
+        cursor.execute('TRUNCATE table {};'.format(name))
 
-    drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
+    cursor.execute('SET FOREIGN_KEY_CHECKS = 1;')
 
-    try:
-        cursor.execute(drop)
-    except sql.Error as e:
-        print(e)
+    for name, cmd in add_data.items():
+        cursor.execute(cmd)
 
-    # Creates all tables
-    create = ''
-
-    for name, cmd in tables.items():
-        create = create + cmd
-
-    # print(create)
-
-    try:
-        cursor.execute(create)
-    except sql.Error as e:
-        print(e)
+    conn.commit()
