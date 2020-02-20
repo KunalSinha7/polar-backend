@@ -59,7 +59,7 @@ def assignRole(data):
     try:
         cursor.execute(insert_cmd, [data['roleId'], data['userId']])
     except MySQLdb.IntegrityError:
-        abort(400, "User already has role or does not exists")
+        abort(400, "User already has role or does not exist")
 
     conn.commit()
     cursor.close()

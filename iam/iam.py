@@ -35,7 +35,7 @@ def assignRole():
     if 'roleId' not in data or 'userId' not in data:
         abort(400, "Missing data")
     db.assignRole(data)
-    return {}
+    return jsonify({})
 
 
 @iam.route('/revokeRole', methods=['POST'])
@@ -45,4 +45,4 @@ def revokeRole():
     if ('roleId') not in data or 'userId' not in data:
         abort(400, "Missing data")
     db.revokeRole(data)
-    return {}
+    return jsonify({})
