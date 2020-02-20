@@ -78,7 +78,6 @@ def forgotPassword():
     db.addLink(user_id, u_link)
     s_link = 'https://polarapp.xyz/resetPassword?token=' + str(u_link)
     message.sendForgotPassword(data['email'], s_link)
-    print(str(uuid))
 
     return jsonify('Sent email to {}'.format(data['email']))
 

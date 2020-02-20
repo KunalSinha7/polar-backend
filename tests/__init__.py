@@ -53,8 +53,8 @@ class BaseTestCase(ut.TestCase):
 
     def fake_user(self):
         response = self.post('/user/register', dict(
-            first_name=rand_string(10),
-            last_name=rand_string(10),
+            firstName=rand_string(10),
+            lastName=rand_string(10),
             email = '{}@polarapp.com'.format(rand_string(5)),
             password = rand_string(20)
         ))
@@ -62,8 +62,23 @@ class BaseTestCase(ut.TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
 
-        self.jwt = data['auth']
-        return response
+        return data['auth']
+
+    def fake_user_object(self):
+        user = dict(
+            firstName=rand_string(10),
+            lastName=rand_string(10),
+            email = '{}@polarapp.com'.format(rand_string(5)),
+            password = rand_string(20)
+        )
+
+        response = self.post('/user/register', user)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        user['jwt'] = data['auth']
+
+        return user
 
 if __name__ == "__main__":
     ut.main()
