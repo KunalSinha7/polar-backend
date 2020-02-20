@@ -79,3 +79,12 @@ def revokeRole(data):
     cursor.close()
     conn.close()
     return True
+
+
+def permissions():
+    conn = db.conn()
+    cursor = conn.cursor()
+    get_cmd = 'SELECT * FROM Permissions;'
+    cursor.execute(get_cmd)
+    res = cursor.fetchall()
+    return res
