@@ -146,26 +146,13 @@ def setupTestDB():
     # Drops all tables
     drop = 'SET FOREIGN_KEY_CHECKS = 0;'
     for name, cmd in tables.items():
-        # drop = drop + 'TRUNCATE table {};'.format(name)
-        drop = drop + 'drop table if exists {};'.format(name)
+        drop = drop + 'TRUNCATE table {};'.format(name)
+        #drop = drop + 'drop table if exists {};'.format(name)
 
     drop = drop + 'SET FOREIGN_KEY_CHECKS = 1;'
 
     try:
         cursor.execute(drop)
-    except sql.Error as e:
-        print(e)
-
-    # Creates all tables
-    create = ''
-
-    for name, cmd in tables.items():
-        create = create + cmd
-
-    # print(create)
-
-    try:
-        cursor.execute(create)
     except sql.Error as e:
         print(e)
 
