@@ -24,8 +24,11 @@ class BaseTestCase(ut.TestCase):
     @classmethod
     def setUpClass(cls):
         super(BaseTestCase, cls).setUpClass()
-        db.setupTestDB()
-        print('setup')
+        if 'run' not in app.config:
+            db.setupTestDB()
+            print('setup')
+            app.config['run'] = True
+        
 
     def setUp(self):
         self.app = flaskapp.app.test_client()
@@ -53,8 +56,8 @@ class BaseTestCase(ut.TestCase):
 
     def fake_user(self):
         response = self.post('/user/register', dict(
-            first_name=rand_string(10),
-            last_name=rand_string(10),
+            firstName = rand_string(10),
+            lastName = rand_string(10),
             email = '{}@polarapp.com'.format(rand_string(5)),
             password = rand_string(20)
         ))

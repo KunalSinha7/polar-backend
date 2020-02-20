@@ -183,9 +183,10 @@ def setupTestDB():
         cursor.execute(cmd)
 
     conn.commit()
-   
 
+    return 
 
+    
 def resetDB():
     conn = db.conn()
     cursor = conn.cursor()
