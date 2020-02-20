@@ -24,8 +24,11 @@ class BaseTestCase(ut.TestCase):
     @classmethod
     def setUpClass(cls):
         super(BaseTestCase, cls).setUpClass()
-        db.setupTestDB()
-        print('setup')
+        if 'run' not in app.config:
+            db.setupTestDB()
+            print('setup')
+            app.config['run'] = True
+        
 
     def setUp(self):
         self.app = flaskapp.app.test_client()
