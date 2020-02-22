@@ -10,7 +10,7 @@ iam = Blueprint('iam', __name__)
 
 @iam.route('/createRole', methods=['POST'])
 @auth.login_required(perms=[11])
-def creatRole():
+def createRole():
     data = request.get_json()
     if 'roleName' not in data or 'permissions' not in data:
         abort(400, "Missing data")
@@ -55,3 +55,28 @@ def permissions():
     for perm in perms:
         resp[perm[0]] = perm[1]
     return jsonify(resp)
+
+
+@iam.route('/getRoles', methods=['GET', 'POST'])
+def getRoles():
+    roles = db.getAllRoles()
+
+    out  = {}
+
+
+    for row in roles:
+
+        if row[0] not in out:
+            role = {}
+            role['key'] = row[0]
+            role['roleName'] = row[1]
+            role['permissions'] = [row[2]]
+            out[row[0]] = role
+        else:
+            out[row[0]]['permissions'].append(row[2])
+
+    return jsonify(list(out.values()))
+
+
+
+

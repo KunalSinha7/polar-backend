@@ -92,3 +92,11 @@ def permissions():
     cursor.execute(get_cmd)
     res = cursor.fetchall()
     return res
+
+
+get_all_roles_cmd = '''select Roles.roleId, Roles.roleName, PermissionRoles.permissionId from Roles join PermissionRoles on Roles.roleId = PermissionRoles.roleId;'''
+def getAllRoles():
+    conn =db.conn()
+    cursor = conn.cursor()
+    cursor.execute(get_all_roles_cmd)
+    return cursor.fetchall()
