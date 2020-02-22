@@ -68,5 +68,17 @@ class BaseTestCase(ut.TestCase):
         self.jwt = data['auth']
         return response
 
+
+    def getAdmin(self):
+        response = self.post('/user/login', dict{
+            email = 'admin@polarapp.xyz',
+            password = 'password'
+        })
+
+        self.assertEqual(response.status, 200)
+        data = json.loads(response.data)
+        return data
+
+
 if __name__ == "__main__":
     ut.main()

@@ -77,6 +77,7 @@ def getRoles():
 
 
 @iam.route('/getUserRoles', methods=['POST'])
+@auth.login_required(perms=[11])
 def getUserRoles():
     users = db.getAllUserRoles()
     out = {}
