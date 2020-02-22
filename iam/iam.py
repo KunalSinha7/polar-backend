@@ -57,15 +57,13 @@ def permissions():
     return jsonify(resp)
 
 
-@iam.route('/getRoles', methods=['GET', 'POST'])
+@iam.route('/getRoles', methods=['POST'])
+@auth.login_required(perms=[11])
 def getRoles():
     roles = db.getAllRoles()
-
     out  = {}
 
-
     for row in roles:
-
         if row[0] not in out:
             role = {}
             role['key'] = row[0]
@@ -78,5 +76,22 @@ def getRoles():
     return jsonify(list(out.values()))
 
 
+@iam.route('/getUserRoles', methods=['POST'])
+def getUserRoles():
+    users = db.getAllUserRoles()
+    out = {}
 
+    for row in users:  
+        if row[0] not in out:
+            user = {}
+            user['key'] = row[0]
+            user['firstName'] = row[1]
+            user['lastName'] = row[2]
+            user['phone'] = row[3]
+            user['email'] = row[4]
+            user['roles'] = [row[5]]
+            out[row[0]] = user
+        else:
+            out[row[0]]['roles'].append(row[5])
 
+    return jsonify(list(out.values()))
