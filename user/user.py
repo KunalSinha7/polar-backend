@@ -20,14 +20,14 @@ def login():
 
     data['password'] = auth.hash_password(data['password'], data['email'])
     
-    res = db.login(data)
+    res, perms = db.login(data)
 
     jwt = auth.jwt.make_jwt(res[0])
     resp = {
         'firstName': res[1],
         'lastName': res[2],
         'auth': jwt,
-        'permissions': 'n',
+        'permissions': perms,
     }
     return jsonify(resp)
 
@@ -55,13 +55,13 @@ def register():
         message = 'Incorrect request, missing ' + str(missing)
         abort(400, message)
 
-    user_id = db.create_user(data)
+    user_id, perms = db.create_user(data)
     jwt = auth.jwt.make_jwt(user_id)
     resp = {
         'firstName': data['firstName'],
         'lastName': data['lastName'],
         'auth': jwt,
-        'permissions': 'n',
+        'permissions': perms,
     }
 
     return jsonify(resp)

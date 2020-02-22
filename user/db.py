@@ -12,6 +12,9 @@ VALUES (%s, %s, %s, %s);
 
 unique_email_cmd = '''SELECT COUNT(*) FROM Users where email = %s;'''
 
+perms_cmd = '''SELECT permissionId FROM UserRoles u, PermissionRoles p
+WHERE u.roleId = p.roleId AND u.userId = %s;
+'''
 
 def create_user(data):
     conn = db.conn()
@@ -30,8 +33,13 @@ def create_user(data):
             data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
 
     user_id = cursor.lastrowid
+
+    cursor.execute(perms_cmd, [user_id])
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     conn.commit()
-    return user_id
+    return user_id, a
 
 
 def login(data):
@@ -46,10 +54,15 @@ def login(data):
 
     if res is None:
         abort(400, "Incorrect credentials provided")
+    
+    cursor.execute(perms_cmd, [res[0]])
+
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
 
     cursor.close()
     conn.close()
-    return res
+    return res, a
 
 
 def getInfo(userId):

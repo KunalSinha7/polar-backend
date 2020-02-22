@@ -46,3 +46,12 @@ def revokeRole():
         abort(400, "Missing data")
     db.revokeRole(data)
     return jsonify()
+
+
+@iam.route('/permissions', methods=['POST'])
+def permissions():
+    perms = db.permissions()
+    resp = {}
+    for perm in perms:
+        resp[perm[0]] = perm[1]
+    return jsonify(resp)
