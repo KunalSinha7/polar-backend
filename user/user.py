@@ -138,6 +138,6 @@ def setInfo():
 @user.route('/delete', methods=['POST'])
 @auth.login_required(perms=None)
 def delete():
-    # db.delete(data)
-    return 'deleted'
+    db.delete(g.userId)
+    return jsonify()
     

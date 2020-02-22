@@ -103,16 +103,15 @@ def setInfo(data):
     return True
 
 
-def delete(data):
+def delete(userId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
-    delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
+    delete_user_cmd = 'DELETE FROM Users WHERE userId = %s;'
 
-    cursor.execute(delete_user_cmd, [data['userId']])
-    cursor.execute(delete_roles_cmd, [data['userId']])
+    cursor.execute(delete_user_cmd, [userId])
 
+    conn.commit()
     cursor.close()
     conn.close()
 
