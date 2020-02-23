@@ -78,9 +78,14 @@ def getInfo(userId):
     if res is None:
         abort(400, "User doesn't exist")
 
+    cursor.execute(perms_cmd, [userId])
+
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     cursor.close()
     conn.close()
-    return res
+    return res, a
 
 
 def setInfo(data):
