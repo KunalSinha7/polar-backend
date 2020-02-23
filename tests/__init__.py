@@ -70,14 +70,14 @@ class BaseTestCase(ut.TestCase):
 
 
     def getAdmin(self):
-        response = self.post('/user/login', dict{
+        response = self.post('/user/login', dict(
             email = 'admin@polarapp.xyz',
             password = 'password'
-        })
+        ))
 
         self.assertEqual(response.status, 200)
         data = json.loads(response.data)
-        return data
+        return data['auth']
 
 
 if __name__ == "__main__":
