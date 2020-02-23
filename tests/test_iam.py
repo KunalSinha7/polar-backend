@@ -8,6 +8,7 @@ import db
 
 import sys
 import pytest
+import time
 
 class IAMTestCase(BaseTestCase):
 
@@ -232,3 +233,82 @@ class IAMTestCase(BaseTestCase):
             "userId": 2
         })
         self.assertEqual(response.status_code, 200)
+
+
+
+class IAMManagementTestCase(BaseTestCase):
+
+    def make_role(self, jwt, name, perms):
+        response = self.post('/iam/createRole', {
+            'auth': jwt,
+            'roleName': name,
+            'permissions': perms
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def add_to_role(self, jwt, user, role):
+        response = self.post('/iam/assignRole', {
+            'auth': self.__class__.auth,
+            'roleId': 1,
+            'userId': 2
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_iam_get_roles_no_auth(self):
+        response = self.post('/iam/getRoles', {})
+        self.assertEqual(response.status_code, 401)
+
+    def test_iam_get_roles_bad_auth(self):
+        user = self.fake_user()
+        response = self.post('/iam/getRoles', {
+            'auth':user
+        })
+        self.assertEqual(response.status_code, 403)
+
+    def test_iam_get_roles_one(self):
+        admin_user_jwt = self.get_admin_user()
+        role_name = 'vol'
+        perms = [1, 4, 5, 11]
+
+        self.__class__.make_role(self, admin_user_jwt, role_name, perms)
+        response = self.post('/iam/getRoles', {
+            'auth':admin_user_jwt
+        })
+        data = response.get_json()
+
+        for row in data:
+            if row['roleName'] == role_name and row['permissions'] == perms:
+                self.assertTrue
+
+        self.assertFalse
+
+
+    def test_iam_get_roles_mult(self):
+        admin_user_jwt = self.get_admin_user()
+        role_name_one = 'brass'
+        role_name_two = 'percussion'
+
+        perms_one = [1,5,7]
+        perms_two = [2,5,7]
+
+        self.__class__.make_role(self, admin_user_jwt, role_name_one, perms_one)
+        self.__class__.make_role(self, admin_user_jwt, role_name_two, perms_two)
+
+        response = self.post('/iam/getRoles', {
+            'auth':admin_user_jwt
+        })    
+
+        data = response.get_json()
+        count = 0
+
+        for row in data:
+            if row['roleName'] == role_name_one and row['permissions'] == perms_one:
+                count += 1
+
+            if row['roleName'] == role_name_two and row['permissions'] == perms_two:
+                count += 1
+
+        if count >= 2:
+            self.assertTrue
+        else:
+            self.assertFalse

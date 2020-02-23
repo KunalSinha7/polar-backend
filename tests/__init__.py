@@ -65,7 +65,7 @@ class BaseTestCase(ut.TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.jwt = data['auth']
-        
+
         return data['auth']
 
     def fake_user_object(self):
@@ -91,7 +91,7 @@ class BaseTestCase(ut.TestCase):
             password = 'password'
         ))
 
-        self.assertEqual(response.status, 200)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         return data['auth']
 
