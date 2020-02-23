@@ -84,7 +84,7 @@ class BaseTestCase(ut.TestCase):
         return user
 
 
-    def getAdmin(self):
+    def get_admin_user(self):
         response = self.post('/user/login', dict(
             email = 'admin@polarapp.xyz',
             password = 'password'

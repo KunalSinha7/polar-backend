@@ -188,7 +188,7 @@ class IAMTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
 
-    def test_iam_revoke_unath(self):
+    def test_iam_revoke_unauth(self):
         response = self.post('/iam/revokeRole', {
             "auth": self.__class__.unauth,
             "roleId": 1,

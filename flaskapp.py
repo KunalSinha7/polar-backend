@@ -24,16 +24,9 @@ if os.environ.get('config') is None:
 def makedb():
     db.util.resetDB()
 
-
-@app.route('/')
-def index():
-    return 'Hello World'
-
-
 @app.errorhandler(400)
 def bad_request(error):
     return make_response(jsonify({'code': 400, 'message': error.description}), 400)
-
 
 @app.errorhandler(401)
 def unauthorized(error):
