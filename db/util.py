@@ -22,7 +22,7 @@ tables['Users'] = '''CREATE TABLE `Users` (
   `phone` varchar(10) DEFAULT NULL,
   `password` text,
   PRIMARY KEY (`userId`),
-  UNIQUE KEY `Unique User` (`userId`,`email`)
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 

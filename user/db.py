@@ -180,9 +180,3 @@ def updatePassword(user_id, password, email):
         abort(501, 'SQL error in updatePassword')
 
     return True
-
-
-def test():
-    conn = db.conn()
-    cursor = conn.cursor()
-    return

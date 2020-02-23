@@ -66,8 +66,6 @@ def assignRole(data):
         abort(400, "User already has role or does not exist")
 
     conn.commit()
-    cursor.close()
-    conn.close()
     return True
 
 
@@ -108,3 +106,31 @@ def getAllUserRoles():
     cursor = conn.cursor()
     cursor.execute(get_all_user_roles_cmd)
     return cursor.fetchall()
+
+insert_user_email_cmd = '''insert into Users (email) values (%s);'''
+def insertUserEmail(email):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(insert_user_email_cmd, [email])
+        conn.commit()
+        return cursor.lastrowid
+    except MySQLdb.IntegrityError:
+        abort(400, "User already already exists")
+
+
+add_link_cmd = '''insert into Links (used, link, userId) values (0, %s, %s);'''
+def addLink(userId, link):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(add_link_cmd, [link, userId])
+        conn.commit()
+    except MySQLdb.IntegrityError:
+        abort(501)
+    finally:
+        cursor.close()
+        conn.close()
+        

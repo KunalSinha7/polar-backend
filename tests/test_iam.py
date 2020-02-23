@@ -386,6 +386,6 @@ class IAMManagementTestCase(BaseTestCase):
         user = self.fake_user_object()
 
         response = self.post('/iam/getUserRoles', {
-            'auth':user['jwt']
+            'auth': user['jwt']
         })
         self.assertEqual(response.status_code, 403)

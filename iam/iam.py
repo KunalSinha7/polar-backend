@@ -4,6 +4,8 @@ import iam.db as db
 import auth
 import auth.jwt
 import auth.perms
+import uuid
+import message
 
 iam = Blueprint('iam', __name__)
 
@@ -96,3 +98,37 @@ def getUserRoles():
             out[row[0]]['roles'].append(row[5])
 
     return jsonify(list(out.values()))
+
+@iam.route('/inviteUser', methods=['POST'])
+#@auth.login_required(perms=[11])
+def invitedUser():
+    data = request.get_json()
+    missing = []
+
+    if 'email' not in data:
+        missing.append('email')  
+
+    if 'roles' not in data:
+        missing.append('roles')
+
+    if len(missing) > 0:
+        abort(400, 'missing ' + str(missing))
+
+    
+    print(data['roles'])
+    
+    insert = {}
+    insert['userId'] = db.insertUserEmail(data['email'])
+
+    for role in data['roles']:
+        insert['roleId'] = role
+        db.assignRole(insert)
+
+    u_link = uuid.uuid4()
+    db.addLink(insert['userId'], u_link)
+    s_link = 'https://polarapp.xyz/register?token=' + str(u_link) + '&email=' + data['email']
+    message.sendForgotPassword(data['email'], s_link)
+
+
+
+    return 'thanks'
