@@ -66,6 +66,45 @@ def register():
 
     return jsonify(resp)
 
+
+@user.route('/registerEmail', methods=['POST'])
+def registerEmail():
+    data = request.get_json()
+    missing = []
+
+    if 'firstName' not in data:
+        missing.append('firstName')
+
+    if 'lastName' not in data:
+        missing.append('lastName')
+
+    if 'email' not in data:
+        missing.append('email')
+
+    if 'password' not in data:
+        missing.append('password')
+    elif 'email' in data:
+        data['password'] = auth.hash_password(data['password'], data['email'])
+
+    if 'token' not in data:
+        missing.append('token')
+
+    if len(missing) > 0:
+        message = 'Incorrect request, missing ' + str(missing)
+        abort(400, message)
+
+
+    user_id, perms = db.create_user_email(data)
+    jwt = auth.jwt.make_jwt(user_id)
+    resp = {
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'auth': jwt,
+        'permissions': perms,
+    }
+
+    return jsonify(resp)
+
 @user.route('/forgotPassword', methods=['POST'])
 def forgotPassword():
     data = request.get_json()

@@ -99,6 +99,13 @@ def getAllRoles():
     cursor.execute(get_all_roles_cmd)
     return cursor.fetchall()
 
+get_roles_nums_cmd = '''select distinct roleId from Roles;'''
+def getRoleNums():
+    conn = db.conn()
+    cursor =  conn.cursor()
+    cursor.execute(get_roles_nums_cmd)
+    return cursor.fetchall()
+
 
 get_all_user_roles_cmd = '''select Users.userId, Users.firstName, Users.lastName, Users.phone, Users.email, UserRoles.roleId from Users left join UserRoles on Users.userId = UserRoles.userId;'''
 def getAllUserRoles():

@@ -114,8 +114,11 @@ def invitedUser():
     if len(missing) > 0:
         abort(400, 'missing ' + str(missing))
 
-    
-    print(data['roles'])
+
+    all_roles = [role for r in db.getRoleNums() for role in r]
+
+    if list(set(all_roles) & set(data['roles'])) != data['roles']:
+        abort(400, 'bad roles')
     
     insert = {}
     insert['userId'] = db.insertUserEmail(data['email'])
@@ -129,6 +132,4 @@ def invitedUser():
     s_link = 'https://polarapp.xyz/register?token=' + str(u_link) + '&email=' + data['email']
     message.sendForgotPassword(data['email'], s_link)
 
-
-
-    return 'thanks'
+    return 'Success'
