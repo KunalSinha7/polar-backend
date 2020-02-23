@@ -41,6 +41,3 @@ def sendForgotPassword(email, link):
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-    else:
-        print('Email sent')
-        print(response['MessageId'])
