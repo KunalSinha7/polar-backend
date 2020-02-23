@@ -64,6 +64,7 @@ class BaseTestCase(ut.TestCase):
 
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
+        self.jwt = data['auth']
 
         return data['auth']
 
