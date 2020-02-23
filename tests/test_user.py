@@ -205,3 +205,18 @@ class UserTestCase(BaseTestCase):
             "phone": None
         })
         self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        self.fake_user()
+        response = self.post('/user/delete', {
+            "auth": self.jwt
+        })
+        self.assertEqual(response.status_code, 200)
+        response = self.post('/user/delete', {
+            "auth": self.jwt
+        })
+        self.assertEqual(response.status_code, 200)
+    
+    def test_delete_missing(self):
+        response = self.post('/user/delete', {})
+        self.assertEqual(response.status_code, 401)
