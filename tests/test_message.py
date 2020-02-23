@@ -9,6 +9,7 @@ import db
 import sys
 import pytest
 
+
 class MessageTestCase(BaseTestCase):
 
     def test_reset_password_full(self):
@@ -18,7 +19,6 @@ class MessageTestCase(BaseTestCase):
             email=user['email']
         ))
         user['id'] = auth.jwt.check_jwt(user['jwt'])
-
 
         with app.app_context() as context:
             sql_stmt = '''select link from Links where userId=%s;'''
@@ -35,3 +35,9 @@ class MessageTestCase(BaseTestCase):
 
             self.assertEqual(response.status_code, 200)
 
+            response = self.post('/user/login', dict(
+                email=user['email'],
+                password='blahblahblah'
+            ))
+
+            self.assertEqual(response.status_code, 200)
