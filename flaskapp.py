@@ -21,7 +21,7 @@ if os.environ.get('config') is None:
     else:
         PATH = '../config.cfg'
 
-    app.config.from_object(PATH)
+    app.config.from_pyfile(PATH)
 
 @app.cli.command("resetdb")
 def makedb():
