@@ -206,7 +206,7 @@ def updatePassword(user_id, password, email):
     cursor = conn.cursor()
 
     try:
-        cursor.execute(update_password_cmd, [password, user_id, email])
+        cursor.execute(update_password_cmd, [str(password), int(user_id), str(email)])
 
         if cursor.rowcount != 1:
             abort(501, 'Something went wrong in updatePassword')
