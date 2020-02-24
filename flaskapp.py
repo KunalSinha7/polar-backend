@@ -23,6 +23,10 @@ if os.environ.get('config') is None:
 
     app.config.from_pyfile(PATH)
 
+@app.route('/')
+def index():
+    return ''
+
 @app.cli.command("resetdb")
 def makedb():
     db.util.resetDB()
