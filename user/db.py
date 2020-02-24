@@ -12,6 +12,10 @@ VALUES (%s, %s, %s, %s);
 
 unique_email_cmd = '''SELECT COUNT(*) FROM Users where email = %s;'''
 
+perms_cmd = '''SELECT distinct permissionId FROM UserRoles u, PermissionRoles p
+WHERE u.roleId = p.roleId AND u.userId = %s;
+'''
+
 
 def create_user(data):
     conn = db.conn()
@@ -30,8 +34,38 @@ def create_user(data):
             data['firstName'], data['lastName'], data['email'], data['phone'], data['password']])
 
     user_id = cursor.lastrowid
+
+    cursor.execute(perms_cmd, [user_id])
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     conn.commit()
-    return user_id
+    return user_id, a
+
+
+update_user_phone_cmd = '''update Users set firstName = %s, lastName = %s, password = %s, phone = %s where userId = %s;'''
+update_user_no_phone_cmd = '''update Users set firstName = %s, lastName = %s, password = %s where userId = %s;'''
+
+
+def create_user_email(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    user_id = checkPasswordToken(data['email'], data['token'])
+
+    if 'phone' in data:
+        cursor.execute(update_user_phone_cmd, [
+                       data['firstName'], data['lastName'], data['password'], data['phone'], user_id])
+    else:
+        cursor.execute(update_user_no_phone_cmd, [
+                       data['firstName'], data['lastName'], data['password'], user_id])
+
+    cursor.execute(perms_cmd, [user_id])
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
+    conn.commit()
+    return user_id, a
 
 
 def login(data):
@@ -47,9 +81,14 @@ def login(data):
     if res is None:
         abort(400, "Incorrect credentials provided")
 
+    cursor.execute(perms_cmd, [res[0]])
+
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     cursor.close()
     conn.close()
-    return res
+    return res, a
 
 
 def getInfo(userId):
@@ -65,9 +104,14 @@ def getInfo(userId):
     if res is None:
         abort(400, "User doesn't exist")
 
+    cursor.execute(perms_cmd, [userId])
+
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     cursor.close()
     conn.close()
-    return res
+    return res, a
 
 
 def setInfo(data):
@@ -77,7 +121,7 @@ def setInfo(data):
     edit_cmd = 'UPDATE Users SET firstName = %s, lastName = %s, phone = %s WHERE userId = %s;'
 
     cursor.execute(edit_cmd, [data['firstName'],
-        data['lastName'], data['phone'], data['userId']])
+                              data['lastName'], data['phone'], data['userId']])
 
     res = cursor.fetchone()
 
@@ -90,25 +134,26 @@ def setInfo(data):
     return True
 
 
-def delete(data):
+def delete(userId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
-    delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
+    delete_user_cmd = 'DELETE FROM Users WHERE userId = %s;'
 
-    cursor.execute(delete_user_cmd, [data['userId']])
-    cursor.execute(delete_roles_cmd, [data['userId']])
+    cursor.execute(delete_user_cmd, [userId])
 
+    conn.commit()
     cursor.close()
     conn.close()
 
 
 get_user_id_cmd = '''select userId from Users where email = %s;'''
+
+
 def getUserId(email):
     conn = db.conn()
     cursor = conn.cursor()
-    cursor.execute(get_user_id_cmd,[email])
+    cursor.execute(get_user_id_cmd, [email])
 
     if cursor.rowcount != 1:
         abort(400, 'Invalid email')
@@ -117,6 +162,8 @@ def getUserId(email):
 
 
 add_link_cmd = '''insert into Links (used, link, userId) values (0, %s, %s);'''
+
+
 def addLink(userId, link):
     conn = db.conn()
     cursor = conn.cursor()
@@ -132,6 +179,8 @@ def addLink(userId, link):
 
 
 check_token_cmd = '''update Links set used = 1 where link = %s and userId =%s and used = 0;'''
+
+
 def checkPasswordToken(email, link):
     user_id = getUserId(email)
 
@@ -152,6 +201,8 @@ def checkPasswordToken(email, link):
 
 
 update_password_cmd = '''update Users set password = %s where userId = %s and email = %s;'''
+
+
 def updatePassword(user_id, password, email):
     conn = db.conn()
     cursor = conn.cursor()
@@ -167,9 +218,3 @@ def updatePassword(user_id, password, email):
         abort(501, 'SQL error in updatePassword')
 
     return True
-
-
-def test():
-    conn = db.conn()
-    cursor = conn.cursor()
-    return

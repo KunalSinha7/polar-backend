@@ -20,14 +20,14 @@ def login():
 
     data['password'] = auth.hash_password(data['password'], data['email'])
     
-    res = db.login(data)
+    res, perms = db.login(data)
 
     jwt = auth.jwt.make_jwt(res[0])
     resp = {
         'firstName': res[1],
         'lastName': res[2],
         'auth': jwt,
-        'permissions': 'n',
+        'permissions': perms,
     }
     return jsonify(resp)
 
@@ -55,13 +55,52 @@ def register():
         message = 'Incorrect request, missing ' + str(missing)
         abort(400, message)
 
-    user_id = db.create_user(data)
+    user_id, perms = db.create_user(data)
     jwt = auth.jwt.make_jwt(user_id)
     resp = {
         'firstName': data['firstName'],
         'lastName': data['lastName'],
         'auth': jwt,
-        'permissions': 'n',
+        'permissions': perms,
+    }
+
+    return jsonify(resp)
+
+
+@user.route('/registerEmail', methods=['POST'])
+def registerEmail():
+    data = request.get_json()
+    missing = []
+
+    if 'firstName' not in data:
+        missing.append('firstName')
+
+    if 'lastName' not in data:
+        missing.append('lastName')
+
+    if 'email' not in data:
+        missing.append('email')
+
+    if 'password' not in data:
+        missing.append('password')
+    elif 'email' in data:
+        data['password'] = auth.hash_password(data['password'], data['email'])
+
+    if 'token' not in data:
+        missing.append('token')
+
+    if len(missing) > 0:
+        message = 'Incorrect request, missing ' + str(missing)
+        abort(400, message)
+
+
+    user_id, perms = db.create_user_email(data)
+    jwt = auth.jwt.make_jwt(user_id)
+    resp = {
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'auth': jwt,
+        'permissions': perms,
     }
 
     return jsonify(resp)
@@ -77,8 +116,7 @@ def forgotPassword():
     u_link = uuid.uuid4()
     db.addLink(user_id, u_link)
     s_link = 'https://polarapp.xyz/resetPassword?token=' + str(u_link)
-    message.sendForgotPassword(data['email'], s_link)
-    print(str(uuid))
+    message.sendNewUser(data['email'], s_link)
 
     return jsonify('Sent email to {}'.format(data['email']))
 
@@ -110,13 +148,14 @@ def resetPassword():
 @user.route('/getInfo', methods=['POST'])
 @auth.login_required(perms=None)
 def getInfo():
-    res = db.getInfo(g.userId)
+    res, perms = db.getInfo(g.userId)
     
     resp = {
         'firstName': res[1],
         'lastName': res[2],
         'email': res[3],
-        'phone': res[4]
+        'phone': res[4],
+        'permissions': perms
     }
 
     return jsonify(resp)
@@ -138,6 +177,6 @@ def setInfo():
 @user.route('/delete', methods=['POST'])
 @auth.login_required(perms=None)
 def delete():
-    # db.delete(data)
-    return 'deleted'
+    db.delete(g.userId)
+    return jsonify()
     

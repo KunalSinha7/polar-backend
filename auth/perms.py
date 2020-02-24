@@ -19,6 +19,6 @@ def checkPerms(userId, perms):
     b = all(elem in a for elem in perms)
 
     if not b:
-        abort(401, "Insufficient privileges")
+        abort(403, "Insufficient privileges")
 
     return True
