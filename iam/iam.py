@@ -130,6 +130,6 @@ def invitedUser():
     u_link = uuid.uuid4()
     db.addLink(insert['userId'], u_link)
     s_link = 'https://polarapp.xyz/register?token=' + str(u_link) + '&email=' + data['email']
-    message.sendForgotPassword(data['email'], s_link)
+    message.sendNewUser(data['email'], s_link)
 
     return 'Success'
