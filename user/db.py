@@ -104,9 +104,14 @@ def getInfo(userId):
     if res is None:
         abort(400, "User doesn't exist")
 
+    cursor.execute(perms_cmd, [userId])
+
+    per = cursor.fetchall()
+    a = [item for t in per for item in t]
+
     cursor.close()
     conn.close()
-    return res
+    return res, a
 
 
 def setInfo(data):
@@ -129,16 +134,15 @@ def setInfo(data):
     return True
 
 
-def delete(data):
+def delete(userId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    delete_user_cmd = 'DELETE FROM Users WHERE userId = %d;'
-    delete_roles_cmd = 'DELETE FROM UserRoles WHERE userId = %d;'
+    delete_user_cmd = 'DELETE FROM Users WHERE userId = %s;'
 
-    cursor.execute(delete_user_cmd, [data['userId']])
-    cursor.execute(delete_roles_cmd, [data['userId']])
+    cursor.execute(delete_user_cmd, [userId])
 
+    conn.commit()
     cursor.close()
     conn.close()
 

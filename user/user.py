@@ -148,13 +148,14 @@ def resetPassword():
 @user.route('/getInfo', methods=['POST'])
 @auth.login_required(perms=None)
 def getInfo():
-    res = db.getInfo(g.userId)
+    res, perms = db.getInfo(g.userId)
     
     resp = {
         'firstName': res[1],
         'lastName': res[2],
         'email': res[3],
-        'phone': res[4]
+        'phone': res[4],
+        'permissions': perms
     }
 
     return jsonify(resp)
@@ -176,6 +177,6 @@ def setInfo():
 @user.route('/delete', methods=['POST'])
 @auth.login_required(perms=None)
 def delete():
-    # db.delete(data)
-    return 'deleted'
+    db.delete(g.userId)
+    return jsonify()
     
