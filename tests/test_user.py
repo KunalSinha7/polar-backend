@@ -205,3 +205,34 @@ class UserTestCase(BaseTestCase):
             "phone": None
         })
         self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        self.fake_user()
+        response = self.post('/user/delete', {
+            "auth": self.jwt
+        })
+        self.assertEqual(response.status_code, 200)
+        response = self.post('/user/getInfo', {
+            "auth": self.jwt
+        })
+        self.assertEqual(response.status_code, 400)
+    
+    def test_delete_missing(self):
+        response = self.post('/user/delete', {})
+        self.assertEqual(response.status_code, 401)
+    
+    def test_logout_missing(self):
+        response = self.post('/user/getInfo', {})
+        self.assertEqual(response.status_code, 401)
+    
+    def test_logout_invalid(self):
+        response = self.post('/user/getInfo', {
+            "auth": "Gen3r1C_t0K3N"
+        })
+        self.assertEqual(response.status_code, 401)
+    
+    def test_logout_expired(self):
+        response = self.post('/user/getInfo', {
+            "auth": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjMsImlhdCI6MTU4MjMzNTM0OCwiZXhwIjoxNTgyMzQyNTQ4fQ.LEdrJjQ5f8Brbc0JpnFqvYLmdtxpFlDyX9HPMJbtm88"
+        })
+        self.assertEqual(response.status_code, 401)
