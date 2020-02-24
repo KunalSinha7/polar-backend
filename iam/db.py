@@ -66,8 +66,6 @@ def assignRole(data):
         abort(400, "User already has role or does not exist")
 
     conn.commit()
-    cursor.close()
-    conn.close()
     return True
 
 
@@ -92,3 +90,54 @@ def permissions():
     cursor.execute(get_cmd)
     res = cursor.fetchall()
     return res
+
+
+get_all_roles_cmd = '''select Roles.roleId, Roles.roleName, PermissionRoles.permissionId from Roles join PermissionRoles on Roles.roleId = PermissionRoles.roleId;'''
+def getAllRoles():
+    conn = db.conn()
+    cursor = conn.cursor()
+    cursor.execute(get_all_roles_cmd)
+    return cursor.fetchall()
+
+get_roles_nums_cmd = '''select distinct roleId from Roles;'''
+def getRoleNums():
+    conn = db.conn()
+    cursor =  conn.cursor()
+    cursor.execute(get_roles_nums_cmd)
+    return cursor.fetchall()
+
+
+get_all_user_roles_cmd = '''select Users.userId, Users.firstName, Users.lastName, Users.phone, Users.email, UserRoles.roleId from Users left join UserRoles on Users.userId = UserRoles.userId;'''
+def getAllUserRoles():
+    conn = db.conn()
+    cursor = conn.cursor()
+    cursor.execute(get_all_user_roles_cmd)
+    return cursor.fetchall()
+
+insert_user_email_cmd = '''insert into Users (email) values (%s);'''
+def insertUserEmail(email):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(insert_user_email_cmd, [email])
+        conn.commit()
+        return cursor.lastrowid
+    except MySQLdb.IntegrityError:
+        abort(400, "User already already exists")
+
+
+add_link_cmd = '''insert into Links (used, link, userId) values (0, %s, %s);'''
+def addLink(userId, link):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(add_link_cmd, [link, userId])
+        conn.commit()
+    except MySQLdb.IntegrityError:
+        abort(501)
+    finally:
+        cursor.close()
+        conn.close()
+        
