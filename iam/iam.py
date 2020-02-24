@@ -100,7 +100,7 @@ def getUserRoles():
     return jsonify(list(out.values()))
 
 @iam.route('/inviteUser', methods=['POST'])
-#@auth.login_required(perms=[11])
+@auth.login_required(perms=[11])
 def invitedUser():
     data = request.get_json()
     missing = []
