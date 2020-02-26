@@ -188,10 +188,10 @@ def checkPasswordToken(email, link):
     cursor = conn.cursor()
 
     try:
-        cursor.execute(check_token_cmd, [str(link), int(user_id)])
+        cursor.execute(check_token_cmd, [str(link), user_id])
 
         if cursor.rowcount != 1:
-            abort(400, 'No found user or link')
+            abort(401, 'No found user or link')
         else:
             conn.commit()
     except MySQLdb.IntegrityError:
