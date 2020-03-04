@@ -31,3 +31,15 @@ def upload(data):
         
     conn.commit()
     return True
+
+
+def delete(fileId):
+    conn = db.conn()
+    cursor = conn.cursor()
+    
+    delete_cmd = 'DELETE FROM Files WHERE fileId = %s;'
+
+    cursor.execute(delete_cmd, [fileId])
+
+    conn.commit()
+    return True
