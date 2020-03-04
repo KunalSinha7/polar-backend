@@ -5,6 +5,7 @@ import files.db as db
 import auth
 import auth.jwt
 import auth.perms
+import user.db as user
 
 files = Blueprint('files', __name__)
 
@@ -19,7 +20,7 @@ def upload():
     
     # develop s3 module
 
-    data['store'] = 'beep'
+    data['store'] = data['name'] + '.txt'
     db.upload(data)
 
     return jsonify()
@@ -34,3 +35,10 @@ def delete():
     # delete from s3
     db.delete(data['fileId'])
     return jsonify()
+
+
+@files.route('/view', methods=['POST'])
+@auth.login_required(perms=[1])
+def view():
+    res = db.view(g.userId)
+    return jsonify(res)
