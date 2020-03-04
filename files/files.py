@@ -13,7 +13,24 @@ files = Blueprint('files', __name__)
 def upload():
     data = request.get_json()
     data['userId'] = g.userId
+
     if 'name' not in data or 'desc' not in data or 'file' not in data or 'roles' not in data:
         abort(400, "Missing data")
+    
+    # develop s3 module
+
+    data['store'] = 'beep'
     db.upload(data)
+
+    return jsonify()
+
+
+@files.route('/delete', methods=['POST'])
+@auth.login_required(perms=[2])
+def delete():
+    data = request.get_json()
+    if 'fileId' not in data:
+        abort(400, "Missing data")
+    # delete from s3
+    db.delete(data['fileId'])
     return jsonify()
