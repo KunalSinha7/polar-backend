@@ -34,3 +34,11 @@ def delete():
     # delete from s3
     db.delete(data['fileId'])
     return jsonify()
+
+
+@files.route('/view', methods=['POST'])
+@auth.login_required(perms=[1])
+def view():
+    roles = [1]
+    db.view(roles)
+    return 'view'

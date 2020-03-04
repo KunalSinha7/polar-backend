@@ -43,3 +43,16 @@ def delete(fileId):
 
     conn.commit()
     return True
+
+
+def view(roles):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    view_cmd = 'SELECT * FROM Files f, FileRoles r WHERE f.fileId = r.fileId AND roleId IN (1);'
+    cursor.execute(view_cmd)
+
+    res = cursor.fetchall()
+    print (res)
+
+    return res
