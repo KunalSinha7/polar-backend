@@ -13,7 +13,13 @@ files = Blueprint('files', __name__)
 def upload():
     data = request.get_json()
     data['userId'] = g.userId
+
     if 'name' not in data or 'desc' not in data or 'file' not in data or 'roles' not in data:
         abort(400, "Missing data")
+    
+    # develop s3 module
+    
+    data['store'] = 'beep'
     db.upload(data)
+
     return jsonify()
