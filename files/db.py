@@ -45,14 +45,35 @@ def delete(fileId):
     return True
 
 
+def getRoles(userId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    roles_cmd = 'SELECT roleId FROM UserRoles WHERE userId = %s;'
+
+    cursor.execute(roles_cmd, [userId])
+
+    return cursor.fetchall()
+
+
 def view(roles):
     conn = db.conn()
     cursor = conn.cursor()
 
-    view_cmd = 'SELECT * FROM Files f, FileRoles r WHERE f.fileId = r.fileId AND roleId IN (1);'
+    view_cmd = 'SELECT * FROM Files f, FileRoles r WHERE f.fileId = r.fileId AND roleId IN ('
+
+    for role in roles:
+        view_cmd += str(role[0]) + ','
+    
+    # view_cmd += str(role[0]) + ');'
+    print(view_cmd)
+
     cursor.execute(view_cmd)
 
+    field_names = [i[0] for i in cursor.description]
+    print(field_names)
     res = cursor.fetchall()
     print (res)
+    
 
     return res

@@ -5,6 +5,7 @@ import files.db as db
 import auth
 import auth.jwt
 import auth.perms
+import user.db as user
 
 files = Blueprint('files', __name__)
 
@@ -39,6 +40,8 @@ def delete():
 @files.route('/view', methods=['POST'])
 @auth.login_required(perms=[1])
 def view():
-    roles = [1]
+    roles = db.getRoles(g.userId)
+    # if roles is empty:
+
     db.view(roles)
     return 'view'
