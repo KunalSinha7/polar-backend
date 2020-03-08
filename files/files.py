@@ -20,7 +20,7 @@ def upload():
     
     # develop s3 module
 
-    data['store'] = 'beep'
+    data['store'] = data['name'] + '.txt'
     db.upload(data)
 
     return jsonify()
@@ -40,8 +40,5 @@ def delete():
 @files.route('/view', methods=['POST'])
 @auth.login_required(perms=[1])
 def view():
-    roles = db.getRoles(g.userId)
-    # if roles is empty:
-
-    db.view(roles)
-    return 'view'
+    res = db.view(g.userId)
+    return jsonify(res)

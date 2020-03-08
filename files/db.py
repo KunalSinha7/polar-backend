@@ -26,7 +26,6 @@ def upload(data):
     role_upload_cmd = role_upload_cmd[:len(role_upload_cmd) - 1]
 
     cursor.execute(role_upload_cmd, tuple(row))
-    print(cursor.fetchall())
     # not checking for invalid, duplicate roles
         
     conn.commit()
@@ -56,24 +55,24 @@ def getRoles(userId):
     return cursor.fetchall()
 
 
-def view(roles):
+def view(userId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    view_cmd = 'SELECT * FROM Files f, FileRoles r WHERE f.fileId = r.fileId AND roleId IN ('
+    view_cmd = '''SELECT DISTINCT(f.fileId), storageName, displayName
+        FROM Files f, FileRoles r 
+        WHERE f.fileId = r.fileId AND roleId IN (
+        SELECT roleId FROM UserRoles WHERE userId = %s);'''
 
-    for role in roles:
-        view_cmd += str(role[0]) + ','
-    
-    # view_cmd += str(role[0]) + ');'
-    print(view_cmd)
+    view_cmd = '''SELECT f.*, firstName, lastName FROM ( 
+        SELECT DISTINCT(f.fileId), storageName, displayName, f.userId AS id 
+        FROM Files f, FileRoles r 
+        WHERE f.fileId = r.fileId AND roleId IN ( 
+        SELECT roleId FROM UserRoles WHERE userId = %s)) AS f, Users 
+		WHERE f.id = userId;'''
 
-    cursor.execute(view_cmd)
+    cursor.execute(view_cmd, [userId])
 
-    field_names = [i[0] for i in cursor.description]
-    print(field_names)
     res = cursor.fetchall()
-    print (res)
-    
 
     return res
