@@ -6,6 +6,7 @@ import auth
 import auth.jwt
 import auth.perms
 import user.db as user
+import boto3
 
 files = Blueprint('files', __name__)
 
@@ -19,6 +20,14 @@ def upload():
         abort(400, "Missing data")
     
     # develop s3 module
+
+    # If S3 object_name was not specified, use file_name
+    object_name = data['file']
+
+    # Upload the file
+    s3_client = boto3.client('s3')
+    response = s3_client.upload_file(data['file'], 'polar-files', object_name)
+    print('success')
 
     data['store'] = data['name'] + '.txt'
     db.upload(data)
