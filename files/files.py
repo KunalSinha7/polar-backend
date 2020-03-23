@@ -20,14 +20,19 @@ def upload():
         abort(400, "Missing data")
     
     # develop s3 module
+    
+    # try:
+    #     send_file("/C/Users/Darwin Vaz/Downloads/CFG.png",
+    #         attachment_filename = "xyz"
+    #         )
+    # except Exception as e:
+    #     print(e)
+    
 
-    # If S3 object_name was not specified, use file_name
-    object_name = data['file']
+    s3 = boto3.resource('s3')
+    BUCKET = "test"
 
-    # Upload the file
-    s3_client = boto3.client('s3')
-    response = s3_client.upload_file(data['file'], 'polar-files', object_name)
-    print('success')
+    s3.Bucket(BUCKET).upload_file("/c/Users/Darwin Vaz/Downloads/CFG(1).png", "cfg")
 
     data['store'] = data['name'] + '.txt'
     db.upload(data)
