@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, make_response
 from user import user
 from iam import iam
+from message import message
 from flask_cors import CORS
 
 
@@ -12,6 +13,7 @@ import db.util
 app = Flask(__name__)
 app.register_blueprint(user.user, url_prefix='/user')
 app.register_blueprint(iam.iam, url_prefix='/iam')
+app.register_blueprint(message.message, url_prefix='/message')
 CORS(app, support_credentials=True)
 
 if os.environ.get('config') is None:
