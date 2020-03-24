@@ -6,6 +6,12 @@ def upload(data):
     conn = db.conn()
     cursor = conn.cursor()
 
+    file_select_cmd = 'SELECT * FROM Files WHERE displayName = %s;'
+
+    cursor.execute(file_select_cmd, [data['name']])
+    if cursor.rowcount > 0:
+        abort(400, "A file with this name already exists.")
+
     file_upload_cmd = '''INSERT INTO Files 
     (storageName, displayName, description, userId) 
     VALUES (%s, %s, %s, %s);'''
@@ -14,7 +20,6 @@ def upload(data):
 
     cursor.execute(file_upload_cmd, 
         [data['store'], data['name'], data['desc'], data['userId']])
-    # not checking if file already exists
     
     fileId = cursor.lastrowid
     
@@ -27,10 +32,9 @@ def upload(data):
     role_upload_cmd = role_upload_cmd[:len(role_upload_cmd) - 1]
 
     cursor.execute(role_upload_cmd, tuple(row))
-    # not checking for invalid, duplicate roles
         
     conn.commit()
-    return True
+    return fileId
 
 
 def delete(fileId):
@@ -77,3 +81,6 @@ def view(userId):
     res = cursor.fetchall()
 
     return res
+
+
+
