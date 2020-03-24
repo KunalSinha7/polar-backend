@@ -14,6 +14,7 @@ def upload(data):
 
     cursor.execute(file_upload_cmd, 
         [data['store'], data['name'], data['desc'], data['userId']])
+    # not checking if file already exists
     
     fileId = cursor.lastrowid
     
