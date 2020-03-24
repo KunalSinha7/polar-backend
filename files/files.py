@@ -20,14 +20,18 @@ def upload():
 
     if 'name' not in data or 'desc' not in data or 'file' not in data or 'roles' not in data:
         abort(400, "Missing data")
-    
-    file_name = "C:\\Users\\Darwin Vaz\\Downloads\\CFG.png"
-    s3_client = boto3.client('s3')
-    response = s3_client.upload_file(data['file'], BUCKET, data['name'])
 
     data['store'] = data['name']
-    db.upload(data)
+    fileId = db.upload(data)
 
+    s3_client = boto3.client('s3')
+
+    try:
+        s3_client.upload_fileobj(data['file'], BUCKET, data['name'])
+    except ValueError:
+        db.delete(fileId)
+        abort(400, "File object of incorrect type. Must be readable as binary.")
+    
     return jsonify()
 
 
