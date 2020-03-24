@@ -11,8 +11,9 @@ import uuid
 message = Blueprint('message', __name__)
 
 
-@auth.login_required(perms=[7])
+
 @message.route('/email', methods=['POST'])
+@auth.login_required(perms=[7])
 def email():
     data = request.get_json()
 
@@ -38,8 +39,9 @@ def email():
 
     return 'success'
 
-@auth.login_required(perms=[7])
+
 @message.route('/text', methods=['POST'])
+@auth.login_required(perms=[7])
 def textMessage():
     data = request.get_json()
 
