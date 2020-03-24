@@ -12,7 +12,6 @@ def get_user_emails(user_list):
     cursor = conn.cursor()
 
     users = ','.join(['%s'] * len(user_list))
-
     cursor.execute(get_user_emails_cmd % users, tuple(user_list))
 
     return cursor.fetchall()
@@ -26,3 +25,13 @@ def get_id_from_role(role_list):
     cursor.execute(get_id_from_role_cmd % users, tuple(role_list))
 
     return cursor.fetchall() 
+
+get_user_phone_cmd = '''select distinct phone from Users where userId in (%s) and userID IS NOT NULL;'''
+def get_user_phone(user_list):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    users = ','.join(['%s'] * len(user_list))
+    cursor.execute(get_user_phone_cmd % users, tuple(user_list))
+
+    return cursor.fetchall()
