@@ -23,18 +23,27 @@ def email():
     if 'message' not in data or 'subject' not in data:
         abort(400, 'no message or subject')
 
-    ids = db.get_id_from_role(data['roles'])
+    ids = []
+    
+    if len(data['roles']) > 0:
+        ids = db.get_id_from_role(data['roles'])
 
     unique_ids = []
     for i in ids:
         if i[0] not in unique_ids:
             unique_ids.append(i[0])
 
-    emails = db.get_user_emails(unique_ids)
+    for u in data['users']:
+        if u not in unique_ids:
+            unique_ids.append(u)
+
+    emails = []
+
+    if len(unique_ids) > 0:
+        emails = db.get_user_emails(unique_ids)
 
     for e in emails:
         mail.sendEmail(e[0], data['subject'], data['message'])
-
 
 
     return 'success'
@@ -51,14 +60,22 @@ def textMessage():
     if 'message' not in data:
         abort(400, 'No message provided')
 
-    ids = db.get_id_from_role(data['roles'])
+    ids = []
+    if len(data['roles']) > 0:
+        ids = db.get_id_from_role(data['roles'])
 
     unique_ids = []
     for i in ids:
         if i[0] not in unique_ids:
             unique_ids.append(i[0])
 
-    phones = db.get_user_phone(unique_ids)
+    for u in data['users']:
+        if u not in unique_ids:
+            unique_ids.append(u)
+
+    phones = []
+    if len(unique_ids) > 0:
+        phones = db.get_user_phone(unique_ids)
 
 
     for p in phones:
