@@ -70,7 +70,5 @@ def delete():
 @files.route('/view', methods=['POST'])
 @auth.login_required(perms=[1])
 def view():
-    s3 = boto3.resource('s3')
-    s3.Bucket(BUCKET).put_object(Key=data['name'], Body=data['file'])
     res = db.view(g.userId)
     return jsonify(res)

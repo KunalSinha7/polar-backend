@@ -64,17 +64,11 @@ def view(userId):
     conn = db.conn()
     cursor = conn.cursor()
 
-    view_cmd = '''SELECT DISTINCT(f.fileId), storageName, displayName
-        FROM Files f, FileRoles r 
-        WHERE f.fileId = r.fileId AND roleId IN (
-        SELECT roleId FROM UserRoles WHERE userId = %s);'''
-
-    view_cmd = '''SELECT f.*, firstName, lastName FROM ( 
-        SELECT DISTINCT(f.fileId), storageName, displayName, f.userId AS id 
-        FROM Files f, FileRoles r 
-        WHERE f.fileId = r.fileId AND roleId IN ( 
-        SELECT roleId FROM UserRoles WHERE userId = %s)) AS f, Users 
-		WHERE f.id = userId;'''
+    view_cmd = '''SELECT f.*, firstName, lastName FROM (
+        SELECT DISTINCT(f.fileId), storageName, displayName, description, f.userId
+        FROM Users u, UserRoles r, FileRoles fr, Files f
+        WHERE u.userId = %s AND u.userId = r.userId AND r.roleId = fr.roleId AND fr.fileId = f.fileId) AS f, Users
+        WHERE Users.userId = f.userId;'''
 
     cursor.execute(view_cmd, [userId])
 
