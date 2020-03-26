@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort, app, g, send_file
+from flask import Blueprint, json, jsonify, request, abort, app, g, send_file
 import hashlib
 
 import files.db as db
@@ -15,7 +15,9 @@ BUCKET = "polar-files"
 @files.route('/upload', methods=['POST'])
 @auth.login_required(perms=[2])
 def upload():
-    data = request.get_json()
+    file = request.files.get('file')
+    form = request.form.to_dict()
+    data = json.loads(form['data'])
     data['userId'] = g.userId
 
     if 'name' not in data or 'desc' not in data or 'file' not in data or 'roles' not in data:
@@ -27,7 +29,7 @@ def upload():
     s3_client = boto3.client('s3')
 
     try:
-        s3_client.upload_fileobj(data['file'], BUCKET, data['name'])
+        s3_client.upload_fileobj(file, BUCKET, data['name'])
     except ValueError:
         db.delete(fileId)
         abort(400, "File object of incorrect type. Must be readable as binary.")
