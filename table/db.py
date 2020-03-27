@@ -7,27 +7,6 @@ def make_table_name(id):
     return 'table_' + str(id)
 
 
-get_table_cmd = '''select * from {};'''
-def getTable(tableId):
-    conn = db.conn()
-    cursor = conn.cursor()
-    
-    try:
-        cursor.execute(select_table_cmd.format(make_table_name(tableId)))
-    except Exception as e:
-        print(e)
-        abort(400, 'Table does not exist') 
-
-
-    try:
-
-        cursor.execute(get_table_cmd.format(make_table_name(tableId)))
-        return cursor.fetchall()
-    except Exception as e:
-        print(e)
-        abort(500, 'SQL error at get table')
-
-
 get_all_tables_cmd = '''select tableID, tableName from Tables;'''
 def getAllTables():
     conn = db.conn()
