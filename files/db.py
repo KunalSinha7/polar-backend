@@ -22,6 +22,10 @@ def upload(data):
         [data['store'], data['name'], data['desc'], data['userId']])
     
     fileId = cursor.lastrowid
+
+    if len(data['roles']) == 0:
+        conn.commit()
+        return fileId
     
     row = []
     for role in data['roles']:
@@ -67,8 +71,13 @@ def view(userId):
     view_cmd = '''SELECT f.*, firstName, lastName FROM (
         SELECT DISTINCT(f.fileId), storageName, displayName, description, f.userId
         FROM Users u, UserRoles r, FileRoles fr, Files f
-        WHERE u.userId = %s AND u.userId = r.userId AND r.roleId = fr.roleId AND fr.fileId = f.fileId) AS f, Users
-        WHERE Users.userId = f.userId;'''
+        WHERE u.userId = %s AND u.userId = r.userId AND r.roleId = fr.roleId AND fr.fileId = f.fileId
+        UNION
+        SELECT DISTINCT(f.fileId), storageName, displayName, description, f.userId
+        FROM Files f LEFT JOIN FileRoles r ON f.fileId = r.fileId
+        WHERE r.fileId IS NULL)
+        AS f, Users u
+        WHERE f.userId = u.userId;'''
 
     cursor.execute(view_cmd, [userId])
 
