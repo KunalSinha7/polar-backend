@@ -29,5 +29,18 @@ def createTable():
 
     for c in data['columns']:
         db.addColumn_id(table_id, c)
-        
-    return 'hello world'
+
+    return 'success'
+
+@table.route('/delete', methods=['POST'])
+@auth.login_required(perms=[9])
+def deleteTable():
+    data = request.get_json()
+
+    if 'tableId' not in data:
+        abort(400, 'Missing tableId')
+
+    db.delete_table(data['tableId'])
+
+
+    return 'success'

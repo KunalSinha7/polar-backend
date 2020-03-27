@@ -68,3 +68,28 @@ def addColumn_id(tableId, name):
         abort(500, 'Exception in addCol')
 
 
+delete_table_cmd = '''DROP TABLE {};'''
+delete_entry_cmd = '''delete from Tables where tableId = %s;'''
+select_table_cmd = '''select * from {};'''
+def delete_table(tableId):
+    drop = delete_table_cmd.format(make_table_name(tableId))
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(select_table_cmd.format(make_table_name(tableId)))
+    except Exception as e:
+        print(e)
+        abort(400, 'Table does not exist') 
+
+
+    try:
+        cursor.execute(delete_entry_cmd, [tableId])
+        cursor.execute(drop)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        abort(500, 'SQL error at drop')
+
+
+
