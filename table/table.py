@@ -16,6 +16,16 @@ def allTables():
     tables = db.getAllTables()
     return jsonify(tables)
 
+@table.route('/table', methods=['POST'])
+@auth.login_required(perms=[8])
+def oneTable():
+    data = request.get_json()
+
+    if 'tableId' not in data:
+        abort(400, 'Missing tableId')
+
+    return jsonify(db.getTable(data['tableId']))
+
 
 @table.route('/create', methods=['POST'])
 @auth.login_required(perms=[9])

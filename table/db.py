@@ -7,17 +7,25 @@ def make_table_name(id):
     return 'table_' + str(id)
 
 
-check_table_cmd = '''select * from {};'''
-def check_table_exists(id):
+get_table_cmd = '''select * from {};'''
+def getTable(tableId):
     conn = db.conn()
     cursor = conn.cursor()
+    
     try:
-        cursor.execute(check_table_cmd.format(make_table_name(id)))
-    except Exception:
-        print("Except")
-        return False
+        cursor.execute(select_table_cmd.format(make_table_name(tableId)))
+    except Exception as e:
+        print(e)
+        abort(400, 'Table does not exist') 
 
-    return True
+
+    try:
+
+        cursor.execute(get_table_cmd.format(make_table_name(tableId)))
+        return cursor.fetchall()
+    except Exception as e:
+        print(e)
+        abort(500, 'SQL error at get table')
 
 
 get_all_tables_cmd = '''select tableID, tableName from Tables;'''
@@ -29,7 +37,7 @@ def getAllTables():
     return cursor.fetchall()
 
 
-create_table_cmd = '''create table {} (id int(11), primary key (id));'''
+create_table_cmd = '''CREATE TABLE {} (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'''
 insert_table_cmd = '''insert into Tables (tableName) VALUES (%s);'''
 check_table_exists_cmd = '''select * from Tables where tableName = %s;'''
 def createTable(tableName):
