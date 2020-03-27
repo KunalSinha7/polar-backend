@@ -4,26 +4,23 @@ import db
 
 
 def make_table_name(id):
-    return 'table_' + id
+    return 'table_' + str(id)
 
 
 check_table_cmd = '''select * from {};'''
-
-
 def check_table_exists(id):
     conn = db.conn()
     cursor = conn.cursor()
     try:
         cursor.execute(check_table_cmd.format(make_table_name(id)))
     except Exception:
+        print("Except")
         return False
 
     return True
 
 
 get_all_tables_cmd = '''select tableID, tableName from Tables;'''
-
-
 def getAllTables():
     conn = db.conn()
     cursor = conn.cursor()
@@ -32,25 +29,42 @@ def getAllTables():
     return cursor.fetchall()
 
 
-create_table_cmd = '''create table {} (id text);'''
+create_table_cmd = '''create table {} (id int(11), primary key (id));'''
 insert_table_cmd = '''insert into Tables (tableName) VALUES (%s);'''
 check_table_exists_cmd = '''select * from Tables where tableName = %s;'''
-
-
 def createTable(tableName):
     conn = db.conn()
     cursor = conn.cursor()
+    tableName = tableName.strip()
 
-    try:
-        cursor.execute(check_table_exists_cmd, [tableName])
-    except MySQLdb.IntegrityError:
+    cursor.execute(check_table_exists_cmd, [tableName])
+    if cursor.rowcount > 0:
         abort(400, 'This table already exists')
 
     try:
         cursor.execute(insert_table_cmd, [tableName])
+        tableId = cursor.lastrowid
+        cursor.execute(create_table_cmd.format(make_table_name(str(tableId))))
         conn.commit()
-    except Exception:
+
+        return tableId
+    except Exception as e:
+        print(e)
         abort(500, 'SQL error at insert table comand')
 
-    tableId = cursor.lastrowid
-    print(tableId)
+
+add_column_cmd = '''ALTER TABLE {} ADD COLUMN {} text;'''
+def addColumn_id(tableId, name):
+    add = add_column_cmd.format(make_table_name(tableId), name)
+    print(add)
+
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(add)
+    except Exception as e:
+        print(e)
+        abort(500, 'Exception in addCol')
+
+

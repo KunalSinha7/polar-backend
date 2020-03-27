@@ -25,5 +25,9 @@ def createTable():
     if 'tableName' not in data or 'columns' not in data:
         abort(400, 'missing tableName or columns')
 
-    db.createTable(data['tableName'])
+    table_id = db.createTable(data['tableName'])
+
+    for c in data['columns']:
+        db.addColumn_id(table_id, c)
+        
     return 'hello world'
