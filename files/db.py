@@ -23,7 +23,7 @@ def upload(data):
     
     fileId = cursor.lastrowid
 
-    if len(data['roles']) == 0:
+    if data['roles'] is None or len(data['roles']) == 0:
         conn.commit()
         return fileId
     
@@ -41,13 +41,15 @@ def upload(data):
     return fileId
 
 
-def delete(fileId):
+def delete(fileId, name):
     conn = db.conn()
     cursor = conn.cursor()
     
-    delete_cmd = 'DELETE FROM Files WHERE fileId = %s;'
+    delete_cmd = 'DELETE FROM Files WHERE fileId = %s AND displayName = %s;'
 
-    cursor.execute(delete_cmd, [fileId])
+    cursor.execute(delete_cmd, [fileId, name])
+    if cursor.rowcount != 1:
+        abort(400, "The file doesn't exist or the fileId doesn't match the name")
 
     conn.commit()
     return True

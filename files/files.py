@@ -61,11 +61,12 @@ def delete():
     if 'fileId' not in data or 'name' not in data:
         abort(400, "Missing data")
     
+    db.delete(data['fileId'], data['name'])
+    
     s3 = boto3.resource("s3")
     file = s3.Object(BUCKET, data['name'])
     file.delete()
     
-    db.delete(data['fileId'])
     return jsonify()
 
 
