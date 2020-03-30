@@ -122,7 +122,17 @@ def viewTable():
     return jsonify(db.viewTable(data['tableId']))
 
 
+@table.route('/addEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def addEntry():
+    data = request.get_json()
 
+    if 'tableId' not in data or 'contents' not in data:
+        abort(400, 'Missing tableId')
+    
+    db.addEntry(data)
+
+    return jsonify()
 
 
 

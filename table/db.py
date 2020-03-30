@@ -159,4 +159,40 @@ def viewTable(id):
 
     return res
 
+describe_cmd = 'DESC table_%s;'
 
+def addEntry(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(describe_cmd, [data['tableId']])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+    
+    res = cursor.fetchall()
+
+    insert_cmd = 'INSERT INTO table_%s ('
+
+    row = [data['tableId']]
+    for i in range(1, cursor.rowcount):
+        insert_cmd += res[i][0] + ', '
+
+    insert_cmd = insert_cmd[0 : len(insert_cmd) - 2]
+    insert_cmd += ') VALUES ('
+
+    num = len(data['contents'])
+    if num != cursor.rowcount - 1:
+        abort(400, 'Given input does not match table schema')
+
+    for i in range(0, num - 1):
+        row.append(data['contents'][i])
+        insert_cmd += '%s, '
+
+    row.append(data['contents'][num - 1])
+    insert_cmd += '%s);'
+
+    print(insert_cmd, row)
+    cursor.execute(insert_cmd, tuple(row))
+    
+    conn.commit()
