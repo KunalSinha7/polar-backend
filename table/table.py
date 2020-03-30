@@ -110,4 +110,20 @@ def getCols():
     
     return jsonify(db.getColumns(data['tableId']))
 
+
+@table.route('/view', methods=['POST'])
+@auth.login_required(perms=[8])
+def viewTable():
+    data = request.get_json()
     
+    if 'tableId' not in data:
+        abort(400, 'Missing tableId')
+    
+    return jsonify(db.viewTable(data['tableId']))
+
+
+
+
+
+
+

@@ -132,7 +132,6 @@ def modifyColumn(tableId, oldCol, newCol):
     cursor.execute(cmd)
 
 
-
 get_table_columns_cmd = '''select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = %s;'''
 def getColumns(tableId):
     conn = db.conn()
@@ -141,5 +140,23 @@ def getColumns(tableId):
     cursor.execute(get_table_columns_cmd, [make_table_name(tableId)])
 
     return [i[0] for i in cursor.fetchall()]
+
+
+def viewTable(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    table_cmd = 'SELECT * FROM table_%s;'
+
+    try:
+        cursor.execute(table_cmd, [id])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+
+    field_names = [i[0] for i in cursor.description]
+    res = list(cursor.fetchall())
+    res.insert(0, field_names)
+
+    return res
 
 
