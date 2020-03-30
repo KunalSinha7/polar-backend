@@ -72,6 +72,25 @@ def addColumn_id(tableId, name):
         print(type(e))
         abort(500, 'Exception in addCol')
 
+remove_column_cmd = '''ALTER TABLE {} DROP COLUMN `{}`;'''
+def removeColumn(tableId, name):
+    if name == 'id':
+        abort(400, 'Cannot remove this column')
+
+    remove = remove_column_cmd.format(make_table_name(tableId), name)
+
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(remove)
+    except MySQLdb.OperationalError as err:
+        print(err)
+        abort(400, 'This column does not exist')
+    except Exception as e:
+        print(e)
+        abort(500, 'Error in remove column')
+
 
 delete_table_cmd = '''DROP TABLE {};'''
 delete_entry_cmd = '''delete from Tables where tableId = %s;'''

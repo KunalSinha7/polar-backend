@@ -57,7 +57,25 @@ def addColumn():
         abort(400, 'This table does not exist')
 
     column = data['columnName'].strip()
+    column = column.replace('`','')
     db.addColumn_id(data['tableId'], column)
+
+    return 'success'
+
+
+@table.route('/deleteColumn', methods=['POST'])
+@auth.login_required(perms=[9])
+def deleteColumn():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'columnName' not in data:
+        abort(400, 'Missing tableId or columnName')
+
+    if not db.checkTableExists(data['tableId']):
+        abort(400, 'This table does not exist')
+
+    column = data['columnName'].strip()
+    db.removeColumn(data['tableId'], column)
 
     return 'success'
 
