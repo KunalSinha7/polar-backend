@@ -116,4 +116,30 @@ def delete_table(tableId):
         abort(500, 'SQL error at drop')
 
 
+modify_column_cmd = '''ALTER TABLE {} CHANGE `{}` `{}` text;'''
+def modifyColumn(tableId, oldCol, newCol):
+    if oldCol == 'id':
+        abort(400, 'Cannot remove this column')
+
+    cols = getColumns(tableId)
+
+    if oldCol not in cols:
+        abort(400, 'Column not found')
+
+    cmd = modify_column_cmd.format(make_table_name(tableId), oldCol, newCol)
+    conn = db.conn()
+    cursor = conn.cursor()
+    cursor.execute(cmd)
+
+
+
+get_table_columns_cmd = '''select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = %s;'''
+def getColumns(tableId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    cursor.execute(get_table_columns_cmd, [make_table_name(tableId)])
+
+    return [i[0] for i in cursor.fetchall()]
+
 

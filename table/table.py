@@ -79,4 +79,35 @@ def deleteColumn():
 
     return 'success'
 
+@table.route('/modifyColumn', methods=['POST'])
+@auth.login_required(perms=[9])
+def modifyColumn():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'originalColumn' not in data or 'newColumn' not in data:
+        abort(400, 'Missing tableId, originalColumn or newColumn')
+
+    if not db.checkTableExists(data['tableId']):
+        abort(400, 'This table does not exist')
+
+    oldCol = data['originalColumn'].strip()
+    newCol = data['newColumn'].strip()
+    db.modifyColumn(data['tableId'], oldCol, newCol)
+
+    return 'success'
+
+
+@table.route('/columns', methods=['POST'])
+@auth.login_required(perms=[9])
+def getCols():
+    data = request.get_json()
+
+    if 'tableId' not in data:
+        abort(400, 'tableId not in request')
+
+    if not db.checkTableExists(data['tableId']):
+        abort(400, "This table does not exist")
+    
+    return jsonify(db.getColumns(data['tableId']))
+
     
