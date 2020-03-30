@@ -16,6 +16,7 @@ def allTables():
     tables = db.getAllTables()
     return jsonify(tables)
 
+
 @table.route('/create', methods=['POST'])
 @auth.login_required(perms=[9])
 def createTable():
@@ -31,6 +32,7 @@ def createTable():
 
     return 'success'
 
+
 @table.route('/delete', methods=['POST'])
 @auth.login_required(perms=[9])
 def deleteTable():
@@ -40,6 +42,23 @@ def deleteTable():
         abort(400, 'Missing tableId')
 
     db.delete_table(data['tableId'])
+    return 'success'
 
+
+@table.route('/addColumn', methods=['POST'])
+@auth.login_required(perms=[9])
+def addColumn():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'columnName' not in data:
+        abort(400, 'Missing tableId or columnName')
+
+    if not db.checkTableExists(data['tableId']):
+        abort(400, 'This table does not exist')
+
+    column = data['columnName'].strip()
+    db.addColumn_id(data['tableId'], column)
 
     return 'success'
+
+    

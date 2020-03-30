@@ -6,6 +6,21 @@ import db
 def make_table_name(id):
     return 'table_' + str(id)
 
+check_table_id_cmd = '''select * from Tables where tableId = %s;'''
+def checkTableExists(tableId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(check_table_id_cmd, [tableId])
+
+        if cursor.rowcount > 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        abort(500, 'Error in check tableExists')
 
 get_all_tables_cmd = '''select tableID, tableName from Tables;'''
 def getAllTables():
@@ -40,7 +55,7 @@ def createTable(tableName):
         abort(500, 'SQL error at insert table comand')
 
 
-add_column_cmd = '''ALTER TABLE {} ADD COLUMN {} text;'''
+add_column_cmd = '''ALTER TABLE {} ADD COLUMN `{}` text;'''
 def addColumn_id(tableId, name):
     add = add_column_cmd.format(make_table_name(tableId), name)
     print(add)
@@ -50,8 +65,11 @@ def addColumn_id(tableId, name):
 
     try:
         cursor.execute(add)
+    except MySQLdb.OperationalError as ex:
+        abort(400, 'This column already exists')
     except Exception as e:
         print(e)
+        print(type(e))
         abort(500, 'Exception in addCol')
 
 
