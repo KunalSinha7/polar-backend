@@ -196,3 +196,19 @@ def addEntry(data):
     cursor.execute(insert_cmd, tuple(row))
     
     conn.commit()
+    return True
+
+
+def removeEntry(table, row):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    delete_cmd = 'DELETE FROM table_%s WHERE id = %s;'
+
+    try:
+        cursor.execute(delete_cmd, [table, row])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+
+    conn.commit()
+    return True

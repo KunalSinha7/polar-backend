@@ -135,5 +135,17 @@ def addEntry():
     return jsonify()
 
 
+@table.route('/removeEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def removeEntry():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'id' not in data:
+        abort(400, 'Missing tableID or iD')
+    
+    db.removeEntry(data['tableId'], data['id'])
+
+    return jsonify()
+
 
 
