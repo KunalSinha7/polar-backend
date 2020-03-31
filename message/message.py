@@ -102,3 +102,14 @@ def textMessage():
             text.sendSMS(p[0], data['message'])
 
     return 'success'
+
+
+@message.route('/getUsers', methods=['POST'])
+@auth.login_required(perms=[7])
+def getUsers():
+    return jsonify(db.get_all_users())
+
+@message.route('/getRoles', methods=['POST'])
+@auth.login_required(perms=[7])
+def getRoles():
+    return jsonify(db.get_all_roles())
