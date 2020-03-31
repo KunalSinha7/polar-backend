@@ -192,7 +192,6 @@ def addEntry(data):
     row.append(data['contents'][num - 1])
     insert_cmd += '%s);'
 
-    print(insert_cmd, row)
     cursor.execute(insert_cmd, tuple(row))
     
     conn.commit()
@@ -209,6 +208,39 @@ def removeEntry(table, row):
         cursor.execute(delete_cmd, [table, row])
     except MySQLdb.ProgrammingError:
         abort(400, "Table doesn't exist")
+
+    conn.commit()
+    return True
+
+
+def modifyEntry(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    update_cmd = 'UPDATE table_%s SET '
+
+    row = [data['tableId']]
+
+    try:
+        cursor.execute(describe_cmd, [row[0]])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+    
+    res = cursor.fetchall()
+
+    num = len(data['contents'])
+    if cursor.rowcount != num:
+        abort(400, 'Given input does not match table schema')
+
+    for i in range(1, cursor.rowcount):
+        update_cmd += res[i][0] + ' = %s, '
+        row.append(data['contents'][i])
+
+    update_cmd = update_cmd[0 : len(update_cmd) - 2]
+    update_cmd += ' WHERE id = %s'
+    row.append(data['contents'][0])
+
+    cursor.execute(update_cmd, tuple(row))
 
     conn.commit()
     return True

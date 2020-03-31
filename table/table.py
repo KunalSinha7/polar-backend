@@ -148,4 +148,14 @@ def removeEntry():
     return jsonify()
 
 
+@table.route('/modifyEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def modifyEntry():
+    data = request.get_json()
+    
+    if 'tableId' not in data or 'contents' not in data:
+        abort(400, 'Missing data')
 
+    db.modifyEntry(data)
+    
+    return jsonify()
