@@ -6,7 +6,10 @@ import db
 def make_table_name(id):
     return 'table_' + str(id)
 
+
 check_table_id_cmd = '''select * from Tables where tableId = %s;'''
+
+
 def checkTableExists(tableId):
     conn = db.conn()
     cursor = conn.cursor()
@@ -22,7 +25,10 @@ def checkTableExists(tableId):
         print(e)
         abort(500, 'Error in check tableExists')
 
+
 get_all_tables_cmd = '''select tableID, tableName from Tables;'''
+
+
 def getAllTables():
     conn = db.conn()
     cursor = conn.cursor()
@@ -34,6 +40,8 @@ def getAllTables():
 create_table_cmd = '''CREATE TABLE {} (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'''
 insert_table_cmd = '''insert into Tables (tableName) VALUES (%s);'''
 check_table_exists_cmd = '''select * from Tables where tableName = %s;'''
+
+
 def createTable(tableName):
     conn = db.conn()
     cursor = conn.cursor()
@@ -56,6 +64,8 @@ def createTable(tableName):
 
 
 add_column_cmd = '''ALTER TABLE {} ADD COLUMN `{}` text;'''
+
+
 def addColumn_id(tableId, name):
     add = add_column_cmd.format(make_table_name(tableId), name)
     print(add)
@@ -72,7 +82,10 @@ def addColumn_id(tableId, name):
         print(type(e))
         abort(500, 'Exception in addCol')
 
+
 remove_column_cmd = '''ALTER TABLE {} DROP COLUMN `{}`;'''
+
+
 def removeColumn(tableId, name):
     if name == 'id':
         abort(400, 'Cannot remove this column')
@@ -95,6 +108,8 @@ def removeColumn(tableId, name):
 delete_table_cmd = '''DROP TABLE {};'''
 delete_entry_cmd = '''delete from Tables where tableId = %s;'''
 select_table_cmd = '''select * from {};'''
+
+
 def delete_table(tableId):
     drop = delete_table_cmd.format(make_table_name(tableId))
     conn = db.conn()
@@ -104,8 +119,7 @@ def delete_table(tableId):
         cursor.execute(select_table_cmd.format(make_table_name(tableId)))
     except Exception as e:
         print(e)
-        abort(400, 'Table does not exist') 
-
+        abort(400, 'Table does not exist')
 
     try:
         cursor.execute(delete_entry_cmd, [tableId])
@@ -117,6 +131,8 @@ def delete_table(tableId):
 
 
 modify_column_cmd = '''ALTER TABLE {} CHANGE `{}` `{}` text;'''
+
+
 def modifyColumn(tableId, oldCol, newCol):
     if oldCol == 'id':
         abort(400, 'Cannot remove this column')
@@ -132,8 +148,9 @@ def modifyColumn(tableId, oldCol, newCol):
     cursor.execute(cmd)
 
 
-
 get_table_columns_cmd = '''select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = %s;'''
+
+
 def getColumns(tableId):
     conn = db.conn()
     cursor = conn.cursor()
@@ -143,8 +160,9 @@ def getColumns(tableId):
     return [i[0] for i in cursor.fetchall()]
 
 
-
 modify_table_name_cmd = '''UPDATE Tables SET tableName = %s where tableId = %s;'''
+
+
 def modifyTableName(tableId, name):
     conn = db.conn()
     cursor = conn.cursor()
@@ -152,10 +170,28 @@ def modifyTableName(tableId, name):
     if not checkTableExists(tableId):
         abort(400, 'This table does not exist')
 
-
     try:
         cursor.execute(modify_table_name_cmd, [name, tableId])
         conn.commit()
     except Exception as e:
         print(e)
         abort(500, 'Exception in modify table name')
+
+
+def viewTable(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    table_cmd = 'SELECT * FROM table_%s;'
+
+    try:
+        cursor.execute(table_cmd, [id])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+
+    field_names = [i[0] for i in cursor.description]
+    res = list(cursor.fetchall())
+    res.insert(0, field_names)
+
+    return res
+
