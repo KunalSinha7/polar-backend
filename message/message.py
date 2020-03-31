@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request, abort, app, g
+from flask import Blueprint, jsonify, request, abort, app, g, json
+from werkzeug.utils import secure_filename
 import hashlib
 
 import message.db as db
@@ -15,7 +16,9 @@ message = Blueprint('message', __name__)
 @message.route('/email', methods=['POST'])
 @auth.login_required(perms=[7])
 def email():
-    data = request.get_json()
+    file = request.files.get('file')
+    form = request.form.to_dict()
+    data = json.loads(form['data'])
 
     if 'roles' not in data or 'users' not in data:
         abort(400, 'Missing roles or users')
@@ -42,8 +45,21 @@ def email():
     if len(unique_ids) > 0:
         emails = db.get_user_emails(unique_ids)
 
-    for e in emails:
-        mail.sendEmail(e[0], data['subject'], data['message'])
+    print(emails)
+
+    if file is not None:
+        file.filename = secure_filename(file.filename)
+
+        if file.filename.count('.') > 1:
+            abort(400, 'Invalid file')
+
+        file.save(file.filename)
+
+        for e in emails:
+            mail.sendEmailAttachment(e[0], data['subject'], data['message'], file.filename, file.filename)
+    else:
+        for e in emails:
+            mail.sendEmail(e[0], data['subject'], data['message'])
 
 
     return 'success'
