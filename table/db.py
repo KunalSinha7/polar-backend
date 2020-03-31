@@ -143,3 +143,19 @@ def getColumns(tableId):
     return [i[0] for i in cursor.fetchall()]
 
 
+
+modify_table_name_cmd = '''UPDATE Tables SET tableName = %s where tableId = %s;'''
+def modifyTableName(tableId, name):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    if not checkTableExists(tableId):
+        abort(400, 'This table does not exist')
+
+
+    try:
+        cursor.execute(modify_table_name_cmd, [name, tableId])
+        conn.commit()
+    except Exception as e:
+        print(e)
+        abort(500, 'Exception in modify table name')

@@ -110,4 +110,16 @@ def getCols():
     
     return jsonify(db.getColumns(data['tableId']))
 
+
+@table.route('/modifyTableName', methods=['POST'])
+@auth.login_required(perms=[9])
+def modifyTableName():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'name' not in data:
+        abort(400, 'tableId or name not in request')
+
+    db.modifyTableName(data['tableId'], data['name'])
+
+    return 'success'
     
