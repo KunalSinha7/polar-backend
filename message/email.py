@@ -33,7 +33,7 @@ def sendEmailAttachment(email, subject, message, file, basename):
     msg_body.attach(textpart)
     msg_body.attach(htmlpart)
 
-    att = MIMEApplication(open(file, 'rb').read())
+    att = MIMEApplication(open('/tmp/' + file, 'rb').read())
     att.add_header('Content-Disposition', 'attachment', filename=basename)
     msg.attach(msg_body)
 

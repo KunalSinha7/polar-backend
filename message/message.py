@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort, app, g, json
 from werkzeug.utils import secure_filename
 import hashlib
+import os
 
 import message.db as db
 import message.email as mail
@@ -53,10 +54,12 @@ def email():
         if file.filename.count('.') > 1:
             abort(400, 'Invalid file')
 
-        file.save(file.filename)
+        file.save('/tmp/' + file.filename)
 
         for e in emails:
             mail.sendEmailAttachment(e[0], data['subject'], data['message'], file.filename, file.filename)
+    
+        os.remove('/tmp/' + file.filename)
     else:
         for e in emails:
             mail.sendEmail(e[0], data['subject'], data['message'])
