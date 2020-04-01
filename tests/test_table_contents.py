@@ -22,11 +22,6 @@ class TableContentsTestCase(BaseTestCase):
         self.__class__.auth = data['auth']
         self.assertEqual(response.status_code, 200)
         
-        response = self.post('/table/delete', {
-            "auth": self.__class__.auth,
-            "tableId": "1"
-        })
-
         response = self.post('/table/create', {
             "auth": self.__class__.auth,
             "tableName": "Students",
