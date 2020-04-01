@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, abort, app, g, json
 from werkzeug.utils import secure_filename
 import hashlib
 import os
+import pathlib
 
 import message.db as db
 import message.email as mail
@@ -49,17 +50,19 @@ def email():
     print(emails)
 
     if file is not None:
-        file.filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename)
 
-        if file.filename.count('.') > 1:
+        if filename.count('.') > 1:
             abort(400, 'Invalid file')
 
-        file.save('/tmp/' + file.filename)
+        path = pathlib.Path(__file__).parent.absolute()
+        filename = os.path.join(path, filename)
+        file.save(os.path.join(path, filename))
 
         for e in emails:
-            mail.sendEmailAttachment(e[0], data['subject'], data['message'], file.filename, file.filename)
+            mail.sendEmailAttachment(e[0], data['subject'], data['message'], filename)
     
-        os.remove('/tmp/' + file.filename)
+        os.remove(filename)
     else:
         for e in emails:
             mail.sendEmail(e[0], data['subject'], data['message'])
