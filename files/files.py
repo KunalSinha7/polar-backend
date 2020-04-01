@@ -8,6 +8,7 @@ import auth.perms
 import user.db as user
 import boto3
 import botocore
+import werkzeug
 
 files = Blueprint('files', __name__)
 BUCKET = "polar-files"
@@ -71,7 +72,12 @@ def delete():
 
 
 @files.route('/view', methods=['POST'])
-@auth.login_required(perms=[1])
+@auth.login_required(perms=None)
 def view():
+    try:
+        auth.perms.checkPerms(g.userId, [1])
+    except werkzeug.exceptions.Forbidden:
+            return jsonify([])
+
     res = db.view(g.userId)
     return jsonify(res)

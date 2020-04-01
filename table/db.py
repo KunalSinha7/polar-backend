@@ -195,3 +195,90 @@ def viewTable(id):
 
     return res
 
+
+describe_cmd = 'DESC table_%s;'
+
+def addEntry(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(describe_cmd, [data['tableId']])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+    
+    res = cursor.fetchall()
+
+    insert_cmd = 'INSERT INTO table_%s ('
+
+    row = [data['tableId']]
+    for i in range(1, cursor.rowcount):
+        insert_cmd += res[i][0] + ', '
+
+    insert_cmd = insert_cmd[0 : len(insert_cmd) - 2]
+    insert_cmd += ') VALUES ('
+
+    num = len(data['contents'])
+    if num != cursor.rowcount - 1:
+        abort(400, 'Given input does not match table schema')
+
+    for i in range(0, num - 1):
+        row.append(data['contents'][i])
+        insert_cmd += '%s, '
+
+    row.append(data['contents'][num - 1])
+    insert_cmd += '%s);'
+
+    cursor.execute(insert_cmd, tuple(row))
+    
+    conn.commit()
+    return True
+
+
+def removeEntry(table, row):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    delete_cmd = 'DELETE FROM table_%s WHERE id = %s;'
+
+    try:
+        cursor.execute(delete_cmd, [table, row])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+
+    conn.commit()
+    return True
+
+
+def modifyEntry(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    update_cmd = 'UPDATE table_%s SET '
+
+    row = [data['tableId']]
+
+    try:
+        cursor.execute(describe_cmd, [row[0]])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Table doesn't exist")
+    
+    res = cursor.fetchall()
+
+    num = len(data['contents'])
+    if cursor.rowcount != num:
+        abort(400, 'Given input does not match table schema')
+
+    for i in range(1, cursor.rowcount):
+        update_cmd += res[i][0] + ' = %s, '
+        row.append(data['contents'][i])
+
+    update_cmd = update_cmd[0 : len(update_cmd) - 2]
+    update_cmd += ' WHERE id = %s'
+    row.append(data['contents'][0])
+
+    cursor.execute(update_cmd, tuple(row))
+
+    conn.commit()
+    return True
+

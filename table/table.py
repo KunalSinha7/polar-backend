@@ -125,6 +125,32 @@ def modifyTableName():
     return 'success'
 
 
+@table.route('/addEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def addEntry():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'contents' not in data:
+        abort(400, 'Missing tableId')
+    
+    db.addEntry(data)
+
+    return jsonify()
+
+
+@table.route('/removeEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def removeEntry():
+    data = request.get_json()
+
+    if 'tableId' not in data or 'id' not in data:
+        abort(400, 'Missing tableID or iD')
+    
+    db.removeEntry(data['tableId'], data['id'])
+
+    return jsonify()
+
+
 @table.route('/view', methods=['POST'])
 @auth.login_required(perms=[8])
 def viewTable():
@@ -135,3 +161,15 @@ def viewTable():
 
     return jsonify(db.viewTable(data['tableId']))
 
+
+@table.route('/modifyEntry', methods=['POST'])
+@auth.login_required(perms=[10])
+def modifyEntry():
+    data = request.get_json()
+    
+    if 'tableId' not in data or 'contents' not in data:
+        abort(400, 'Missing data')
+
+    db.modifyEntry(data)
+    
+    return jsonify()
