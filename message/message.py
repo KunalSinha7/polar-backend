@@ -1,5 +1,8 @@
-from flask import Blueprint, jsonify, request, abort, app, g
+from flask import Blueprint, jsonify, request, abort, app, g, json
+from werkzeug.utils import secure_filename
 import hashlib
+import os
+import pathlib
 
 import message.db as db
 import message.email as mail
@@ -15,7 +18,9 @@ message = Blueprint('message', __name__)
 @message.route('/email', methods=['POST'])
 @auth.login_required(perms=[7])
 def email():
-    data = request.get_json()
+    file = request.files.get('file')
+    form = request.form.to_dict()
+    data = json.loads(form['data'])
 
     if 'roles' not in data or 'users' not in data:
         abort(400, 'Missing roles or users')
@@ -42,8 +47,25 @@ def email():
     if len(unique_ids) > 0:
         emails = db.get_user_emails(unique_ids)
 
-    for e in emails:
-        mail.sendEmail(e[0], data['subject'], data['message'])
+    print(emails)
+
+    if file is not None:
+        filename = secure_filename(file.filename)
+
+        if filename.count('.') > 1:
+            abort(400, 'Invalid file')
+
+        path = pathlib.Path(__file__).parent.absolute()
+        filename = os.path.join(path, filename)
+        file.save(os.path.join(path, filename))
+
+        for e in emails:
+            mail.sendEmailAttachment(e[0], data['subject'], data['message'], filename)
+    
+        os.remove(filename)
+    else:
+        for e in emails:
+            mail.sendEmail(e[0], data['subject'], data['message'])
 
 
     return 'success'
@@ -83,3 +105,14 @@ def textMessage():
             text.sendSMS(p[0], data['message'])
 
     return 'success'
+
+
+@message.route('/getUsers', methods=['POST'])
+@auth.login_required(perms=[7])
+def getUsers():
+    return jsonify(db.get_all_users())
+
+@message.route('/getRoles', methods=['POST'])
+@auth.login_required(perms=[7])
+def getRoles():
+    return jsonify(db.get_all_roles())

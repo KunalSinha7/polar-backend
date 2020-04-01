@@ -35,3 +35,20 @@ def get_user_phone(user_list):
     cursor.execute(get_user_phone_cmd % users, tuple(user_list))
 
     return cursor.fetchall()
+
+
+get_all_users_cmd = '''select userId, concat(firstName, ' ', lastName) from Users;'''
+def get_all_users():
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    cursor.execute(get_all_users_cmd)
+    return cursor.fetchall()
+
+get_all_roles_cmd = '''select roleId, roleName from Roles;'''
+def get_all_roles():
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    cursor.execute(get_all_roles_cmd)
+    return cursor.fetchall()
