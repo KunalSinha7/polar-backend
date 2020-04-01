@@ -57,7 +57,7 @@ def addColumn():
         abort(400, 'This table does not exist')
 
     column = data['columnName'].strip()
-    column = column.replace('`','')
+    column = column.replace('`', '')
     db.addColumn_id(data['tableId'], column)
 
     return 'success'
@@ -78,6 +78,7 @@ def deleteColumn():
     db.removeColumn(data['tableId'], column)
 
     return 'success'
+
 
 @table.route('/modifyColumn', methods=['POST'])
 @auth.login_required(perms=[9])
@@ -107,19 +108,21 @@ def getCols():
 
     if not db.checkTableExists(data['tableId']):
         abort(400, "This table does not exist")
-    
+
     return jsonify(db.getColumns(data['tableId']))
 
 
-@table.route('/view', methods=['POST'])
-@auth.login_required(perms=[8])
-def viewTable():
+@table.route('/modifyTableName', methods=['POST'])
+@auth.login_required(perms=[9])
+def modifyTableName():
     data = request.get_json()
-    
-    if 'tableId' not in data:
-        abort(400, 'Missing tableId')
-    
-    return jsonify(db.viewTable(data['tableId']))
+
+    if 'tableId' not in data or 'name' not in data:
+        abort(400, 'tableId or name not in request')
+
+    db.modifyTableName(data['tableId'], data['name'])
+
+    return 'success'
 
 
 @table.route('/addEntry', methods=['POST'])
@@ -146,6 +149,17 @@ def removeEntry():
     db.removeEntry(data['tableId'], data['id'])
 
     return jsonify()
+
+
+@table.route('/view', methods=['POST'])
+@auth.login_required(perms=[8])
+def viewTable():
+    data = request.get_json()
+
+    if 'tableId' not in data:
+        abort(400, 'Missing tableId')
+
+    return jsonify(db.viewTable(data['tableId']))
 
 
 @table.route('/modifyEntry', methods=['POST'])
