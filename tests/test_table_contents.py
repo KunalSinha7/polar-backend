@@ -22,6 +22,11 @@ class TableContentsTestCase(BaseTestCase):
         self.__class__.auth = data['auth']
         self.assertEqual(response.status_code, 200)
         
+        response = self.post('/table/delete', {
+            "auth": self.__class__.auth,
+            "tableId": "1"
+        })
+
         response = self.post('/table/create', {
             "auth": self.__class__.auth,
             "tableName": "Students",
@@ -177,7 +182,93 @@ class TableContentsTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
 
+    def test_contents_remove(self):
+        response = self.post('/table/view', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.tableId
+        })
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        rowcount = len(data)
+
+        response = self.post('/table/removeEntry', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.tableId,
+            "id": rowcount - 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.post('/table/view', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.tableId
+        })
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(rowcount, len(data) + 1)
 
 
+    def test_contents_remove_invalid(self):
+        response = self.post('/table/removeEntry', {
+            "tableId": self.__class__.tableId
+        })
+        self.assertEqual(response.status_code, 401)
 
-    
+        response = self.post('/table/removeEntry', {
+            "auth": self.fake_user(),
+        })
+        self.assertEqual(response.status_code, 403)
+
+        response = self.post('/table/removeEntry', {
+            "auth": self.__class__.auth,
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post('/table/removeEntry', {
+            "auth": self.__class__.auth,
+            "tableId": "non_existent_table",
+            "id": 1
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post('/table/removeEntry', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.tableId,
+            "id": 1000
+        })
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_contents_view(self):
+        response = self.post('/table/view', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.tableId,
+        })
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(len(data) >= 3)
+        self.assertEqual(data[0], ["id", "name", "major", "gpa"])
+        self.assertEqual(len(data[1]), 4)
+
+
+    def test_contents_view_invalid(self):
+        response = self.post('/table/view', {
+            "auth": self.__class__.auth,
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post('/table/view', {
+            "auth": self.fake_user(),
+            "tableId": self.__class__.tableId,
+        })
+        self.assertEqual(response.status_code, 403)
+
+        response = self.post('/table/view', {
+            "tableId": self.__class__.tableId
+        })
+        self.assertEqual(response.status_code, 401)
+
+        response = self.post('/table/view', {
+            "auth": self.__class__.auth,
+            "tableId": "non_existent_table",
+        })
+        self.assertEqual(response.status_code, 400)
