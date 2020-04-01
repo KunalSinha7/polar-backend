@@ -172,10 +172,17 @@ def setupTestDB():
     conn = db.test_conn()
     cursor = conn.cursor()
 
+    cursor.execute('select MAX(tableId) from Tables;')
+    max = cursor.fetchone()
+
     # Drops all tables
     cursor.execute('SET FOREIGN_KEY_CHECKS = 0;')
     for name, cmd in tables.items():
         cursor.execute('TRUNCATE table {};'.format(name))
+
+    if max[0] is not None:
+      for i in range(0, max[0] + 1):
+        cursor.execute('DROP TABLE if exists table_' + str(i) + ';')
 
     cursor.execute('SET FOREIGN_KEY_CHECKS = 1;')
 
