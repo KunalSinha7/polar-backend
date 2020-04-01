@@ -102,7 +102,10 @@ class FilesTestCase(BaseTestCase):
         response = self.post('/files/view', {
             "auth": self.__class__.unauth
         })
-        self.assertEqual(response.status_code, 403)
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data, [])
+        
         response = self.post('/files/view', {})
         self.assertEqual(response.status_code, 401)
     
