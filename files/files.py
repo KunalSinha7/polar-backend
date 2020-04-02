@@ -9,6 +9,7 @@ import user.db as user
 import boto3
 import botocore
 import werkzeug
+import os
 
 files = Blueprint('files', __name__)
 BUCKET = "polar-files"
@@ -46,13 +47,14 @@ def download():
         abort(400, "File name missing")
 
     s3 = boto3.resource('s3')
+    path = os.path.dirname(os.path.realpath(__file__))
 
     try:
-        s3.Bucket(BUCKET).download_file(data['name'], data['name'])
+        s3.Bucket(BUCKET).download_file(data['name'], os.path.join(path, data['name']))
     except botocore.exceptions.ClientError:
         abort(400, "File doesn't exist")
 
-    return send_file(data['name'], as_attachment=True)
+    return send_file(os.path.join(path, data['name']), as_attachment=True)
 
 
 @files.route('/delete', methods=['POST'])
