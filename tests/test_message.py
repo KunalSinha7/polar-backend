@@ -41,3 +41,18 @@ class MessageTestCase(BaseTestCase):
             ))
 
             self.assertEqual(response.status_code, 200)
+
+
+    def test_get_users(self):
+        response = self.post('/message/getUsers', {
+            "auth": self.get_admin_user()
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_roles(self):
+        response = self.post('/message/getRoles', {
+            "auth": self.get_admin_user()
+        })
+
+        self.assertEqual(response.status_code, 200)
