@@ -10,7 +10,7 @@ charset = 'utf-8'
 email_client = boto3.client('ses', region_name=aws_region)
 
 
-def sendEmailAttachment(email, subject, message, file):
+def sendEmailAttachment(email, subject, message, file, path):
 
     body_text = message
     body_html = '''
@@ -33,7 +33,7 @@ def sendEmailAttachment(email, subject, message, file):
     msg_body.attach(textpart)
     msg_body.attach(htmlpart)
 
-    att = MIMEApplication(open(file, 'rb').read())
+    att = MIMEApplication(open(path + '/' + file, 'rb').read())
     att.add_header('Content-Disposition', 'attachment', filename=file)
     msg.attach(msg_body)
 
