@@ -26,7 +26,7 @@ def createTable():
         abort(400, 'missing tableName or columns')
 
     for col in data['columns']:
-        if '(' in col or ')' in col:
+        if '(' in col or ')' in col or ' ' in col:
             abort(400, 'Illegal column name')
 
     table_id = db.createTable(data['tableName'])
@@ -60,7 +60,7 @@ def addColumn():
     if not db.checkTableExists(data['tableId']):
         abort(400, 'This table does not exist')
 
-    if '(' in data['columnName'] or ')' in data['columnName']:
+    if '(' in data['columnName'] or ')' in data['columnName'] or ' ' in data['columnName']:
         abort(400, 'Illegal column name')
 
     column = data['columnName'].strip()
@@ -98,7 +98,7 @@ def modifyColumn():
     if not db.checkTableExists(data['tableId']):
         abort(400, 'This table does not exist')
 
-    if '(' in data['newColumn'] or ')' in data['newColumn']:
+    if '(' in data['newColumn'] or ')' in data['newColumn'] or ' ' in data['newColumn']:
         abort(400, 'Illegal column name')
 
     oldCol = data['originalColumn'].strip()
