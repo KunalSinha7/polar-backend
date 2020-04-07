@@ -42,3 +42,27 @@ def create():
     db.create(data)
 
     return jsonify()
+
+
+@event.route('/delete', methods=['POST'])
+@auth.login_required(perms=[5])
+def delete():
+    data = request.get_json()
+    if 'id' not in data:
+        abort(400, "Missing ID")
+    
+    db.delete(data['id'])
+    
+    return jsonify()
+
+
+@event.route('/modify', methods=['POST'])
+@auth.login_required(perms=[3])
+def modify():
+    data = request.get_json()
+    if 'id' not in data or 'name' not in data or 'time' not in data or 'location' not in data or 'desc' not in data:
+        abort(400, "Missing data")
+    
+    db.modify(data)
+
+    return jsonify()

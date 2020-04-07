@@ -25,7 +25,6 @@ def details(id):
     return res
 
 
-
 def create(data):
     conn = db.conn()
     cursor = conn.cursor()
@@ -39,4 +38,30 @@ def create(data):
 
     conn.commit()
     return True
+
+
+def delete(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    delete_cmd = 'DELETE FROM Event WHERE eventId = %s;'
+
+    cursor.execute(delete_cmd, [id])
+
+    conn.commit()
+    return True
+
+
+def modify(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    modify_cmd = '''UPDATE Event SET
+        eventName = %s, time = %s, location = %s, description = %s
+        WHERE eventId = %s;'''
     
+    args = [data['name'], data['time'], data['location'], data['desc'], data['id']]
+    cursor.execute(modify_cmd, args)
+
+    conn.commit()
+    return True
