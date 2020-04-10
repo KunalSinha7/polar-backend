@@ -6,7 +6,7 @@ def all():
     conn = db.conn()
     cursor = conn.cursor()
 
-    list_all_cmd = 'SELECT * FROM Event;'
+    list_all_cmd = 'SELECT eventId, eventName, time FROM Event;'
 
     cursor.execute(list_all_cmd)
 
@@ -32,9 +32,15 @@ def create(data):
     create_cmd = '''INSERT INTO Event
         (eventName, time, location, description) VALUES
         (%s, %s, %s, %s);'''
+    
+    table_cmd = '''CREATE TABLE event_%s (
+        userId int(11) NOT NULL UNIQUE PRIMARY KEY
+        );'''
 
     args = [data['name'], data['time'], data['location'], data['desc']]
     cursor.execute(create_cmd, args)
+
+    cursor.execute(table_cmd, [cursor.lastrowid])
 
     conn.commit()
     return True
@@ -62,6 +68,24 @@ def modify(data):
     
     args = [data['name'], data['time'], data['location'], data['desc'], data['id']]
     cursor.execute(modify_cmd, args)
+
+    conn.commit()
+    return True
+
+
+def rsvp(data):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    rsvp_cmd = '''INSERT INTO event_%s
+        VALUES (%s);'''
+    
+    args = [int(data['id']), data['userId']]
+
+    try:
+        cursor.execute(rsvp_cmd, args)
+    except MySQLdb.IntegrityError:
+        abort(400, "User has already RSVP-ed to this event")
 
     conn.commit()
     return True

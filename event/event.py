@@ -9,7 +9,17 @@ event = Blueprint('event', __name__)
 @event.route('/all', methods=['POST'])
 @auth.login_required(perms=None)
 def all():
-    return jsonify(db.all())
+    res = db.all()
+    resp = []
+
+    for row in res:
+        json = {}
+        json['id'] = row[0]
+        json['name'] = row[1]
+        json['date'] = row[2]
+        resp.append(json)
+    
+    return jsonify(resp)
 
 
 @event.route('/details', methods=['POST'])
@@ -65,4 +75,16 @@ def modify():
     
     db.modify(data)
 
+    return jsonify()
+
+
+@event.route('/rsvp', methods=['POST'])
+@auth.login_required(perms=None)
+def rsvp():
+    data = request.get_json()
+    if 'id' not in data:
+        abort(400, "Missing ID")
+    
+    data['userId'] = g.userId
+    db.rsvp(data)
     return jsonify()
