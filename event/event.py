@@ -16,7 +16,8 @@ def all():
         json = {}
         json['id'] = row[0]
         json['name'] = row[1]
-        json['date'] = row[2]
+        json['startTime'] = row[2]
+        json['endTime'] = row[3]
         resp.append(json)
     
     return jsonify(resp)
@@ -29,14 +30,16 @@ def details():
     if 'id' not in data:
         abort(400, "Missing ID")
     
-    res = db.details(data['id'])
+    res, rsvp = db.details(data['id'], g.userId)
 
     resp = {
         "id": res[0],
         "name": res[1],
-        "time": res[2],
-        "location": res[3],
-        "desc": res[4]
+        "startTime": res[2],
+        "endTime": res[3],
+        "location": res[4],
+        "desc": res[5],
+        "rsvp": rsvp
     }
 
     return jsonify(resp)
@@ -46,7 +49,7 @@ def details():
 @auth.login_required(perms=[3])
 def create():
     data = request.get_json()
-    if 'name' not in data or 'time' not in data or 'location' not in data or 'desc' not in data:
+    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'questions' not in data:
         abort(400, "Missing data")
 
     db.create(data)
@@ -70,7 +73,7 @@ def delete():
 @auth.login_required(perms=[3])
 def modify():
     data = request.get_json()
-    if 'id' not in data or 'name' not in data or 'time' not in data or 'location' not in data or 'desc' not in data:
+    if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
         abort(400, "Missing data")
     
     db.modify(data)
@@ -82,9 +85,20 @@ def modify():
 @auth.login_required(perms=None)
 def rsvp():
     data = request.get_json()
-    if 'id' not in data:
+    if 'id' not in data or 'answers' not in data:
         abort(400, "Missing ID")
     
     data['userId'] = g.userId
     db.rsvp(data)
+    return jsonify()
+
+
+@event.route('/unrsvp', methods=['POST'])
+@auth.login_required(perms=None)
+def unrsvp():
+    data = request.get_json()
+    if 'id' not in data:
+        abort(400, "Missing ID")
+    
+    db.unrsvp(data['id'], g.userId)
     return jsonify()
