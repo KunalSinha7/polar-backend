@@ -49,8 +49,10 @@ def details():
 @auth.login_required(perms=[3])
 def create():
     data = request.get_json()
-    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'questions' not in data:
+    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
         abort(400, "Missing data")
+    if 'questions' not in data:
+        data['questions'] = []
 
     db.create(data)
 
@@ -85,9 +87,11 @@ def modify():
 @auth.login_required(perms=None)
 def rsvp():
     data = request.get_json()
-    if 'id' not in data or 'answers' not in data:
+    if 'id' not in data:
         abort(400, "Missing ID")
-    
+    if 'answers' not in data:
+        data['answers'] = []
+
     data['userId'] = g.userId
     db.rsvp(data)
     return jsonify()
