@@ -40,7 +40,7 @@ def details(id, userId):
         rsvp['response'] = True
         rsvp['answers'] = []
         for i in range(1, len(cursor.description)):
-            rsvp['questions'].append(cursor.description[i][0])
+            rsvp['questions'].append(cursor.description[i][0].replace('\'', ''))
             rsvp['answers'].append(ret[i])
     
     return res, rsvp
