@@ -110,6 +110,65 @@ def textMessage():
 
     return jsonify(response)
 
+@message.route('/emailTemplate', methods=['POST'])
+@auth.login_required(perms=[7])
+def emailTemplate():
+    data = request.get_json()
+    response = ''
+
+    if 'roles' not in data or 'users' not in data:
+        abort(400, 'Missing roles or users')
+
+    if 'template' not in data or 'subject' not in data:
+        abort(400, 'no template or subject')
+
+    ids = []
+    
+    if len(data['roles']) > 0:
+        ids = db.get_id_from_role(data['roles'])
+
+    unique_ids = []
+    for i in ids:
+        if i[0] not in unique_ids:
+            unique_ids.append(i[0])
+
+    for u in data['users']:
+        if u not in unique_ids:
+            unique_ids.append(u)
+
+    emails = []
+
+    if len(unique_ids) > 0:
+        emails = db.get_user_emails(unique_ids)
+
+    print(emails)
+
+    if data['template'] == 'One':
+        if 'bodyOne' not in data or 'bodyTwo' not in data or 'bodyThree' not in data:
+            abort(400, 'Invalid request type for template one')
+
+        for e in emails:
+            mail.sendEmailTemplateOne(e[0], data['subject'], data['bodyOne'], data['bodyTwo'], data['bodyThree'])
+            response += 'Email template one function for ' + e[0] + '\n'
+    elif data['template'] == 'Two':
+        if 'greeting' not in data or 'bodyOne' not in data or 'bodyTwo' not in data or 'closing' not in data or 'link' not in data:
+            abort(400, 'Invalid request type for template two')
+
+        for e in emails:
+            mail.sendEmailTemplateTwo(e[0], data['subject'], data['greeting'], data['bodyOne'], data['link'], data['bodyTwo'], data['closing'])
+            response += 'Email template two function for ' + e[0] + '\n'
+    elif data['template'] == 'Three':
+        if 'header' not in data or 'message' not in data or 'link' not in data or 'img' not in data or 'footer' not in data:
+            abort(400, 'Ivalid request type for template three')
+
+        for e in emails:
+            mail.sendEmailTemplateThree(e[0], data['subject'], data['header'], data['message'], data['link'], data['img'], data['footer'])
+            response += 'Email template three function for ' + e[0] + '\n'
+    else:
+        abort(400, 'Invalid template type')
+
+
+    return jsonify(response)
 
 @message.route('/getUsers', methods=['POST'])
 @auth.login_required(perms=[7])
