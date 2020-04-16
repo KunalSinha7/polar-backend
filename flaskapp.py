@@ -6,6 +6,7 @@ from iam import iam
 from table import table
 from files import files
 from message import message
+from event import event
 from flask_cors import CORS
 
 
@@ -18,6 +19,7 @@ app.register_blueprint(iam.iam, url_prefix='/iam')
 app.register_blueprint(table.table, url_prefix='/table')
 app.register_blueprint(files.files, url_prefix='/files')
 app.register_blueprint(message.message, url_prefix='/message')
+app.register_blueprint(event.event, url_prefix='/event')
 CORS(app, support_credentials=True)
 
 if os.environ.get('config') is None:

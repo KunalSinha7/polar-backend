@@ -40,7 +40,8 @@ tables['UserRoles'] = '''CREATE TABLE IF NOT EXISTS `UserRoles` (
 tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
   `eventId` int(11) NOT NULL AUTO_INCREMENT,
   `eventName` varchar(256) NOT NULL DEFAULT '',
-  `time` datetime DEFAULT NULL,
+  `startTime` datetime DEFAULT NULL,
+  `endTime` datetime DEFAULT NULL,
   `location` text,
   `description` text,
   PRIMARY KEY (`eventId`)
