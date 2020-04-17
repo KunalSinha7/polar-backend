@@ -82,12 +82,13 @@ events = getEvents()
 for e in events:
     reminder_time = e[2] - timedelta(minutes=e[7])
 
-    with open('/home/ubuntu/flaskapp/log.txt', 'a') as myFile:
-        myFile.write("Found event " + str(e))
-        myFile.write("\n")
+
 
     if reminder_time < datetime.utcnow():
-
+        with open('/home/ubuntu/flaskapp/log.txt', 'a') as myFile:
+            myFile.write("Found event " + str(e))
+            myFile.write("\n")
+            
         try:
             users = getUsersFromEvent(e[0])
             for u in users:
@@ -119,4 +120,5 @@ for e in events:
             with open('/home/ubuntu/flaskapp/log.txt', 'a') as myFile:
                 myFile.write("ERROR " + str(e))
                 myFile.write("\n")
-    changeReminder(e[0])
+        
+        changeReminder(e[0])
