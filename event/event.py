@@ -111,3 +111,19 @@ def unrsvp():
     
     db.unrsvp(data['id'], g.userId)
     return jsonify()
+
+
+@event.route('/rsvpList', methods=['POST'])
+@auth.login_required(perms=None)
+def rsvpList():
+    data = request.get_json()
+
+    if perms.checkPerms(g.userId, [3]) or perms.checkPerms(g.userId, [4]):
+        if 'eventId' not in data:
+            abort(400, 'Missing eventId')
+
+        rsvp_list = db.rsvpList(int(data['eventId']))
+
+        return jsonify(rsvp_list)
+    else:
+        abort(403, "Insufficient permissions")

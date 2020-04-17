@@ -141,3 +141,17 @@ def unrsvp(id, userId):
     
     conn.commit()
     return True
+
+
+
+def rsvpList(eventId):
+    get_rsvp_list_cmd = '''select e.userId, u.FirstName, u.LastName from event_%s as e join Users as u on e.userId = u.userId;'''
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(get_rsvp_list_cmd, [eventId])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Event does not exist")
+
+    return cursor.fetchall()
