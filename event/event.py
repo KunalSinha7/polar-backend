@@ -2,6 +2,7 @@ from flask import Blueprint, json, jsonify, request, abort, app, g
 
 import event.db as db
 import auth
+import auth.perms as perms
 
 event = Blueprint('event', __name__)
 
@@ -41,6 +42,10 @@ def details():
         "desc": res[5],
         "rsvp": rsvp
     }
+
+    if perms.checkPerms(g.userId, [3]):
+        resp["reminder"] = res[6]
+        resp["reminderTime"] = res[7]
 
     return jsonify(resp)
 
