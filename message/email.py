@@ -325,7 +325,7 @@ def sendEmailTemplateThree(email, subject, header, message, link, img, footer):
         <table width="100%" cellpadding="0" cellspacing="0" bgcolor="FFFFFF" style="background: #ffffff; max-width: 600px !important; margin: 0 auto; background: #ffffff;">
             <tr>
                 <td style="padding: 20px; text-align: center; background: #76ce3e;">
-                    <h1 style="color: #ffffff">''' + header + '''</h1>
+                    <h1 style="color: #ffffff; text-align: center;">''' + header + '''</h1>
                 </td>
             </tr>
 
@@ -351,19 +351,19 @@ def sendEmailTemplateThree(email, subject, header, message, link, img, footer):
 
 
             <tr>
-                <td style="padding: 20px; background: #2B2E34;">
+                <td style="padding: 20px; background: #2B2E34;text-align: center;">
 
-                    <!-- ** 50% and 50%
-                    ----------------------------------->
                     <table border="0" cellpadding="0" cellspacing="0" a>
                         <tr>
-                            <td width="50%" style="width: 100%; padding: 10px; color: #ffffff; text-align: left;" valign="top">
-                                <p style="font-size: 14px;"> ''' + footer + '''</p>
+                            <td width="100%" style="width: 100%; padding: 10px; color: #ffffff; text-align: center;">
+                                <p style="font-size: 14px; text-align: center;"> ''' + footer + '''</p>
                             </td>
                         </tr>
                     </table>
 
                 </td>
+
+
             </tr>
         </table>
 

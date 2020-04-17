@@ -49,7 +49,7 @@ def details():
 @auth.login_required(perms=[3])
 def create():
     data = request.get_json()
-    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
+    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'reminder' not in data or 'reminderTime' not in data:
         abort(400, "Missing data")
     if 'questions' not in data:
         data['questions'] = []
@@ -75,7 +75,7 @@ def delete():
 @auth.login_required(perms=[3])
 def modify():
     data = request.get_json()
-    if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
+    if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'reminder' not in data or 'reminderTime' not in data:
         abort(400, "Missing data")
     
     db.modify(data)
