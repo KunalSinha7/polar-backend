@@ -2,6 +2,7 @@ from flask import Blueprint, json, jsonify, request, abort, app, g
 
 import event.db as db
 import auth
+import auth.perms as perms
 
 event = Blueprint('event', __name__)
 
@@ -42,6 +43,10 @@ def details():
         "rsvp": rsvp
     }
 
+    if perms.checkPerms(g.userId, [3]):
+        resp["reminder"] = res[6]
+        resp["reminderTime"] = res[7]
+
     return jsonify(resp)
 
 
@@ -49,7 +54,7 @@ def details():
 @auth.login_required(perms=[3])
 def create():
     data = request.get_json()
-    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
+    if 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'reminder' not in data or 'reminderTime' not in data:
         abort(400, "Missing data")
     if 'questions' not in data:
         data['questions'] = []
@@ -75,7 +80,7 @@ def delete():
 @auth.login_required(perms=[3])
 def modify():
     data = request.get_json()
-    if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data:
+    if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'reminder' not in data or 'reminderTime' not in data:
         abort(400, "Missing data")
     
     db.modify(data)
@@ -106,3 +111,19 @@ def unrsvp():
     
     db.unrsvp(data['id'], g.userId)
     return jsonify()
+
+
+@event.route('/rsvpList', methods=['POST'])
+@auth.login_required(perms=None)
+def rsvpList():
+    data = request.get_json()
+
+    if perms.checkPerms(g.userId, [3]) or perms.checkPerms(g.userId, [4]):
+        if 'eventId' not in data:
+            abort(400, 'Missing eventId')
+
+        rsvp_list = db.rsvpList(int(data['eventId']))
+
+        return jsonify(rsvp_list)
+    else:
+        abort(403, "Insufficient permissions")

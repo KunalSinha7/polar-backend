@@ -51,13 +51,13 @@ def create(data):
     cursor = conn.cursor()
 
     create_cmd = '''INSERT INTO Event
-        (eventName, startTime, endTime, location, description) VALUES
-        (%s, %s, %s, %s, %s);'''
+        (eventName, startTime, endTime, location, description, reminder, reminderTime) VALUES
+        (%s, %s, %s, %s, %s, %s, %s);'''
     
     table_cmd = '''CREATE TABLE event_%s (
         userId int(11) NOT NULL UNIQUE PRIMARY KEY'''
 
-    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc']]
+    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], int(data['reminder']), int(data['reminderTime'])]
     cursor.execute(create_cmd, args)
 
     args = [cursor.lastrowid]
@@ -92,10 +92,10 @@ def modify(data):
     cursor = conn.cursor()
 
     modify_cmd = '''UPDATE Event SET
-        eventName = %s, startTime = %s, endTime = %s, location = %s, description = %s
+        eventName = %s, startTime = %s, endTime = %s, location = %s, description = %s, reminder = %s, reminderTime = %s
         WHERE eventId = %s;'''
     
-    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], data['id']]
+    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], int(data['reminder']), int(data['reminderTime']), data['id']]
     cursor.execute(modify_cmd, args)
 
     conn.commit()
@@ -141,3 +141,17 @@ def unrsvp(id, userId):
     
     conn.commit()
     return True
+
+
+
+def rsvpList(eventId):
+    get_rsvp_list_cmd = '''select e.userId, u.FirstName, u.LastName from event_%s as e join Users as u on e.userId = u.userId;'''
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(get_rsvp_list_cmd, [eventId])
+    except MySQLdb.ProgrammingError:
+        abort(400, "Event does not exist")
+
+    return cursor.fetchall()
