@@ -30,6 +30,8 @@ def details():
     data = request.get_json()
     if 'id' not in data:
         abort(400, "Missing ID")
+
+    print("Hello")
     
     res, rsvp = db.details(data['id'], g.userId)
 
@@ -43,7 +45,7 @@ def details():
         "rsvp": rsvp
     }
 
-    if perms.checkPerms(g.userId, [3]):
+    if perms.checkPermsNoAbort(g.userId, [3]):
         resp["reminder"] = res[6]
         resp["reminderTime"] = res[7]
 
@@ -118,7 +120,7 @@ def unrsvp():
 def rsvpList():
     data = request.get_json()
 
-    if perms.checkPerms(g.userId, [3]) or perms.checkPerms(g.userId, [4]):
+    if perms.checkPermsNoAbort(g.userId, [3]) or perms.checkPerms(g.userId, [4]):
         if 'eventId' not in data:
             abort(400, 'Missing eventId')
 
