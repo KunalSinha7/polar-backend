@@ -30,8 +30,6 @@ def details():
     data = request.get_json()
     if 'id' not in data:
         abort(400, "Missing ID")
-
-    print("Hello")
     
     res, rsvp = db.details(data['id'], g.userId)
 
