@@ -40,7 +40,8 @@ def details():
         "endTime": res[3],
         "location": res[4],
         "desc": res[5],
-        "rsvp": rsvp
+        "rsvp": rsvp,
+        "closed": False if res[8] == 0 else True
     }
 
     if perms.checkPermsNoAbort(g.userId, [3]):
@@ -127,3 +128,17 @@ def rsvpList():
         return jsonify(rsvp_list)
     else:
         abort(403, "Insufficient permissions")
+
+
+@event.route('/close', methods=['POST'])
+@auth.login_required(perms=[3])
+def close():
+    data = request.get_json()
+    
+    if 'id' not in data:
+        abort(400, "Missing ID")
+    
+    db.close(data['id'])
+
+    return jsonify()
+

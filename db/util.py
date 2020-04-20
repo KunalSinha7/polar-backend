@@ -44,6 +44,7 @@ tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
   `endTime` datetime DEFAULT NULL,
   `location` text,
   `description` text,
+  `closed` boolean DEFAULT 0,
   PRIMARY KEY (`eventId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 '''
