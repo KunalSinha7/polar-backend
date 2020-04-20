@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort, g
+from flask import Blueprint, jsonify, request, abort, g, send_file
 
 import table.db as db
 import auth
@@ -6,6 +6,8 @@ import auth.jwt
 import auth.perms
 import uuid
 import message
+import csv
+import os
 
 table = Blueprint('table', __name__)
 
@@ -186,3 +188,22 @@ def modifyEntry():
     db.modifyEntry(data)
     
     return jsonify()
+
+
+@table.route('/export', methods=['POST'])
+@auth.login_required(perms=[8])
+def export():
+    data = request.get_json()
+
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    res = db.viewTable(data['tableId'])
+
+    with open('table.csv', 'w', newline='') as outfile:
+        writer = csv.writer(outfile, quoting=csv.QUOTE_NONNUMERIC)
+        for row in res:
+            print(row)
+            writer.writerow(row)
+
+    return send_file("table.csv", as_attachment=True)
