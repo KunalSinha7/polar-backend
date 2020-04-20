@@ -20,6 +20,8 @@ INSERT INTO TableHistory
 VALUES (%s, %s, %s, %s, %s, %s, %s);
 '''
 
+get_row_cmd = 'SELECT * FROM table_%s WHERE id = %s;'
+
 
 def checkTableExists(tableId):
     conn = db.conn()
@@ -258,11 +260,23 @@ def addEntry(data):
     return True
 
 
-def removeEntry(table, row):
+def removeEntry(table, row, user):
     conn = db.conn()
     cursor = conn.cursor()
 
     delete_cmd = 'DELETE FROM table_%s WHERE id = %s;'
+
+    cursor.execute(check_tracking_cmd, [table])
+    if cursor.fetchall() == tracking_enabled:
+        cursor.execute(get_row_cmd, [int(table), int(row)])
+        res = cursor.fetchone()
+        res = res[1:]
+
+        curr = datetime.utcnow()
+        curr = curr.strftime("%Y-%m-%d %H:%M:%S")
+        args = [table, row, str(res), "", user, curr, 2]
+
+        cursor.execute(insert_history_cmd, args)
 
     try:
         cursor.execute(delete_cmd, [table, row])
@@ -295,6 +309,18 @@ def modifyEntry(data):
     for i in range(1, cursor.rowcount):
         update_cmd += res[i][0] + ' = %s, '
         row.append(data['contents'][i])
+
+    cursor.execute(check_tracking_cmd, [data['tableId']])
+    if cursor.fetchall() == tracking_enabled:
+        cursor.execute(get_row_cmd, [data['tableId'], data['contents'][0]])
+        resp = cursor.fetchone()
+        resp = resp[1:]
+
+        curr = datetime.utcnow()
+        curr = curr.strftime("%Y-%m-%d %H:%M:%S")
+        args = [data['tableId'], data['contents'][0], str(resp), str(data['contents'][1:]), data['userId'], curr, 3]
+
+        cursor.execute(insert_history_cmd, args)
 
     update_cmd = update_cmd[0 : len(update_cmd) - 2]
     update_cmd += ' WHERE id = %s'

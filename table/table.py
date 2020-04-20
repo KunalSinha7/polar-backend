@@ -162,7 +162,7 @@ def removeEntry():
     if 'tableId' not in data or 'id' not in data:
         abort(400, 'Missing tableID or iD')
     
-    db.removeEntry(data['tableId'], data['id'])
+    db.removeEntry(data['tableId'], data['id'], g.userId)
 
     return jsonify()
 
@@ -182,6 +182,7 @@ def viewTable():
 @auth.login_required(perms=[10])
 def modifyEntry():
     data = request.get_json()
+    data['userId'] = g.userId
     
     if 'tableId' not in data or 'contents' not in data:
         abort(400, 'Missing data')
