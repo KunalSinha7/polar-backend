@@ -207,3 +207,27 @@ def export():
             writer.writerow(row)
 
     return send_file("table.csv", as_attachment=True)
+
+
+@table.route('/track', methods=['POST'])
+@auth.login_required(perms=[9])
+def track():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    db.track(data['tableId'])
+
+    return jsonify()
+
+
+@table.route('/untrack', methods=['POST'])
+@auth.login_required(perms=[9])
+def untrack():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    db.untrack(data['tableId'])
+
+    return jsonify()

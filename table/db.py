@@ -6,9 +6,11 @@ import db
 def make_table_name(id):
     return 'table_' + str(id)
 
+tracking_enabled = ((1,),)
 
 check_table_id_cmd = '''select * from Tables where tableId = %s;'''
 
+check_tracking_enabled = 'SELECT trackHistory FROM Tables WHERE tableId = %s;'
 
 def checkTableExists(tableId):
     conn = db.conn()
@@ -282,3 +284,29 @@ def modifyEntry(data):
     conn.commit()
     return True
 
+def track(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    track_cmd = 'UPDATE Tables SET trackHistory = 1 WHERE tableId = %s;'
+    
+    cursor.execute(track_cmd, [id])
+    cursor.execute(check_tracking_enabled, [id])
+    print(cursor.fetchall() == ((1,),))
+
+    conn.commit()
+    return True
+
+
+def untrack(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    track_cmd = 'UPDATE Tables SET trackHistory = 0 WHERE tableId = %s;'
+    delete_cmd = 'DELETE FROM TableHistory WHERE tableId =  %s;'
+    
+    cursor.execute(track_cmd, [id])
+    cursor.execute(untrack_cmd, [id])
+
+    conn.commit()
+    return True
