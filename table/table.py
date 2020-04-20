@@ -144,6 +144,7 @@ def modifyTableName():
 @auth.login_required(perms=[10])
 def addEntry():
     data = request.get_json()
+    data['userId'] = g.userId
 
     if 'tableId' not in data or 'contents' not in data:
         abort(400, 'Missing tableId')
