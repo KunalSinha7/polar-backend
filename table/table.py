@@ -34,7 +34,7 @@ def createTable():
     table_id = db.createTable(data['tableName'])
 
     for c in data['columns']:
-        db.addColumn_id(table_id, c)
+        db.addColumn_id(table_id, c, g.userId)
 
     return 'success'
 
@@ -67,7 +67,7 @@ def addColumn():
 
     column = data['columnName'].strip()
     column = column.replace('`', '')
-    db.addColumn_id(data['tableId'], column)
+    db.addColumn_id(data['tableId'], column, g.userId)
 
     return 'success'
 
@@ -84,7 +84,7 @@ def deleteColumn():
         abort(400, 'This table does not exist')
 
     column = data['columnName'].strip()
-    db.removeColumn(data['tableId'], column)
+    db.removeColumn(data['tableId'], column, g.userId)
 
     return 'success'
 
@@ -105,7 +105,7 @@ def modifyColumn():
 
     oldCol = data['originalColumn'].strip()
     newCol = data['newColumn'].strip()
-    db.modifyColumn(data['tableId'], oldCol, newCol)
+    db.modifyColumn(data['tableId'], oldCol, newCol, g.userId)
 
     return 'success'
 
@@ -135,7 +135,7 @@ def modifyTableName():
     if '(' in data['name'] or ')' in data['name']:
         abort(400, 'Illegal table name')
 
-    db.modifyTableName(data['tableId'], data['name'])
+    db.modifyTableName(data['tableId'], data['name'], g.userId)
 
     return 'success'
 
