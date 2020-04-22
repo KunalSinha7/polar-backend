@@ -37,16 +37,18 @@ tables['UserRoles'] = '''CREATE TABLE IF NOT EXISTS `UserRoles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
+tables['Event'] = '''CREATE TABLE `Event` (
   `eventId` int(11) NOT NULL AUTO_INCREMENT,
   `eventName` varchar(256) NOT NULL DEFAULT '',
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
   `location` text,
   `description` text,
-  `closed` boolean DEFAULT 0,
+  `reminder` int(11) DEFAULT '0',
+  `reminderTime` int(11) DEFAULT NULL,
+  `closed` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`eventId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
 '''
 
 tables['CheckIn'] = '''CREATE TABLE IF NOT EXISTS `CheckIn` (
