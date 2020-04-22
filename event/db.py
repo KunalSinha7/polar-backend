@@ -57,9 +57,12 @@ def create(data):
     table_cmd = '''CREATE TABLE event_%s (
         userId int(11) NOT NULL UNIQUE PRIMARY KEY'''
 
+    check_in_table_cmd = '''CREATE TABLE check_in_event_{} (userId int(11) NOT NULL UNIQUE PRIMARY KEY);'''
+
     args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], int(data['reminder']), int(data['reminderTime'])]
     cursor.execute(create_cmd, args)
 
+    table_id = cursor.lastrowid
     args = [cursor.lastrowid]
     for col in data['questions']:
         table_cmd += ', `%s` varchar(256)'
@@ -68,6 +71,7 @@ def create(data):
     table_cmd += ');'
 
     cursor.execute(table_cmd, args)
+    cursor.execute(check_in_table_cmd.format(table_id))
 
     conn.commit()
     return True
@@ -108,6 +112,7 @@ def rsvp(data):
 
     rsvp_cmd = '''INSERT INTO event_%s
         VALUES ('''
+    check_in_rsvp_cmd = '''INSERT INTO check_in_event_%s (userId) values (%s);'''
 
     args = [int(data['id']), data['userId']]
     rsvp_cmd += "%s"
@@ -120,6 +125,7 @@ def rsvp(data):
 
     try:
         cursor.execute(rsvp_cmd, args)
+        cursor.execute(check_in_rsvp_cmd, [int(data['id']), int(data['userId'])])
     except MySQLdb.ProgrammingError:
         abort(400, "Event does not exist")
     except MySQLdb.OperationalError:
@@ -136,9 +142,11 @@ def unrsvp(id, userId):
     cursor = conn.cursor()
 
     unrsvp_cmd = 'DELETE FROM event_%s WHERE userId = %s;'
+    check_in_unrsvp_cmd = '''DELETE FROM check_in_event_%s WHERE userId = %s;'''
 
     cursor.execute(unrsvp_cmd, [int(id), userId])
-    
+    cursor.execute(check_in_unrsvp_cmd, [int(id), userId])
+
     conn.commit()
     return True
 
