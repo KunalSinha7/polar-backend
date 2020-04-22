@@ -26,7 +26,7 @@ def details(id, userId):
     if res is None:
         abort(400, "Event does not exist")
     
-    cursor.execute(rsvp_cmd, [id, userId])
+    cursor.execute(rsvp_cmd, [int(id), userId])
 
     rsvp = {}
     rsvp['questions'] = []
@@ -81,7 +81,7 @@ def delete(id):
     drop_cmd = 'DROP TABLE if exists event_%s'
 
     cursor.execute(delete_cmd, [id])
-    cursor.execute(drop_cmd, [id])
+    cursor.execute(drop_cmd, [int(id)])
 
     conn.commit()
     return True
@@ -143,7 +143,6 @@ def unrsvp(id, userId):
     return True
 
 
-
 def rsvpList(eventId):
     get_rsvp_list_cmd = '''select e.userId, u.FirstName, u.LastName from event_%s as e join Users as u on e.userId = u.userId;'''
     conn = db.conn()
@@ -155,3 +154,15 @@ def rsvpList(eventId):
         abort(400, "Event does not exist")
 
     return cursor.fetchall()
+
+
+def close(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+    
+    close_cmd = 'UPDATE Event SET closed = 1 WHERE eventID = %s;'
+
+    cursor.execute(close_cmd, [id])
+
+    conn.commit()    
+    return True
