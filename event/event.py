@@ -168,3 +168,15 @@ def checkIn():
 
 
     return 'Success'
+
+@event.route('modifyRow', methods=['POST'])
+@auth.login_required(perms=[4])
+def modifyRow():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'contents' not in data:
+        abort(400, 'Missing eventId or contents')
+
+    db.modifyRow(data['eventId'], data['contents'])
+
+    return 'Success'

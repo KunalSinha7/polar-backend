@@ -214,6 +214,54 @@ def checkIn(userId, eventId):
         abort(400, 'Event or user does not exist')
 
 
+def modifyRow(eventId, row):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    get_event_cols_cmd = '''SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = %s;'''
+    event_cols = []
+    check_in_event_cols = []
+    userId = row[0]
+
+    try:
+        cursor.execute(get_event_cols_cmd, ['event_' + eventId])
+        cols = cursor.fetchall()
+
+
+        for i in range(1, len(cols)):
+            event_cols.append(cols[i][0])
+            
+        cursor.execute(get_event_cols_cmd, ['check_in_event_' + eventId])
+        cols = cursor.fetchall()
+
+        for i in range(1, len(cols)):
+            check_in_event_cols.append(cols[i][0])
+    except Exception as e:
+        print(e)
+
+
+ 
+    for i in range(0, len(event_cols)):
+        update_col_cmd = '''update event_{} set `{}`=%s where userId = %s;'''.format(eventId, event_cols[i])
+
+        try:
+            cursor.execute(update_col_cmd, [row[i+1], userId])
+        except Exception as e:
+            print(e)
+
+
+    for i in range(0, len(check_in_event_cols)):
+        update_col_cmd = '''update check_in_event_{} set `{}`=%s where userId = %s;'''.format(eventId, check_in_event_cols[i])
+
+        try:
+            cursor.execute(update_col_cmd, [row[len(event_cols) + 1 + i], userId])
+        except Exception as e:
+            print(e)
+
+
+
+    conn.commit()
+
 
 def removeCol(id, name):
     conn = db.conn()
