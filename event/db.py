@@ -184,7 +184,7 @@ def checkInTable(id):
     conn = db.conn()
     cursor = conn.cursor()
 
-    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId);'''
+    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId) inner join (select userId, checkedIn from CheckIn) as ci using(userId);'''
 
     event_cols = []
 
@@ -199,6 +199,19 @@ def checkInTable(id):
     except MySQLdb.ProgrammingError as e:
         print(e)
         abort(400, "Event does not exist")
+
+def checkIn(userId, eventId):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    update_check_in_cmd = '''update CheckIn set checkedIn=1 where userId = %s and eventId = %s;'''
+
+    try:
+        cursor.execute(update_check_in_cmd, [int(userId), int(eventId)])
+        conn.commit()
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event or user does not exist')
 
 
 

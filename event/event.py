@@ -160,3 +160,11 @@ def checkInTable():
 @auth.login_required(perms=[4])
 def checkIn():
     data = request.get_json()
+
+    if 'userId' not in data or 'eventId' not in data:
+        abort(400, 'Missing userId or eventId')
+
+    db.checkIn(data['userId'], data['eventId'])
+
+
+    return 'Success'
