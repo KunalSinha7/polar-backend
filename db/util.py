@@ -54,7 +54,7 @@ tables['Event'] = '''CREATE TABLE `Event` (
 tables['CheckIn'] = '''CREATE TABLE IF NOT EXISTS `CheckIn` (
   `userId` int(11) NOT NULL,
   `eventId` int(11) NOT NULL,
-  `checkedIn` tinyint(1) NOT NULL,
+  `checkedIn` tinyint(1) NOT NULL DEFAULT '0',,
   PRIMARY KEY (`userId`,`eventId`),
   CONSTRAINT `UserToUser` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

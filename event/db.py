@@ -113,6 +113,7 @@ def rsvp(data):
     rsvp_cmd = '''INSERT INTO event_%s
         VALUES ('''
     check_in_rsvp_cmd = '''INSERT INTO check_in_event_%s (userId) values (%s);'''
+    check_in_cmd = '''INSERT INTO CheckIn (userId, eventId) values (%s, %s);'''
 
     args = [int(data['id']), data['userId']]
     rsvp_cmd += "%s"
@@ -126,6 +127,7 @@ def rsvp(data):
     try:
         cursor.execute(rsvp_cmd, args)
         cursor.execute(check_in_rsvp_cmd, [int(data['id']), int(data['userId'])])
+        cursor.execute(check_in_cmd, [int(data['userId']), int(data['id'])])
     except MySQLdb.ProgrammingError:
         abort(400, "Event does not exist")
     except MySQLdb.OperationalError:
@@ -143,9 +145,11 @@ def unrsvp(id, userId):
 
     unrsvp_cmd = 'DELETE FROM event_%s WHERE userId = %s;'
     check_in_unrsvp_cmd = '''DELETE FROM check_in_event_%s WHERE userId = %s;'''
+    un_check_in_cmd = '''DELETE FROM CheckIn WHERE userId = %s AND eventId = %s;'''
 
     cursor.execute(unrsvp_cmd, [int(id), userId])
     cursor.execute(check_in_unrsvp_cmd, [int(id), userId])
+    cursor.execute(un_check_in_cmd, [int(userId), int(id)])
 
     conn.commit()
     return True
@@ -174,3 +178,42 @@ def close(id):
 
     conn.commit()    
     return True
+
+
+def checkInTable(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId);'''
+
+    event_cols = []
+
+    try:
+        cursor.execute(check_in_table_cmd, [int(id), int(id)])
+        cols = [i[0] for i in cursor.description]
+        res = list(cursor.fetchall())
+        res.insert(0, cols)
+
+        return res
+
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, "Event does not exist")
+
+
+
+def removeCol(id, name):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    get_event_cols_cmd = '''SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s';'''
+
+    try:
+        cursor.execute(get_event_cols_cmd, [id])
+        cols = cursor.fetchall()
+
+
+        return cols
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')

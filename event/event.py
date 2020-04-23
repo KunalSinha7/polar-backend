@@ -142,3 +142,21 @@ def close():
 
     return jsonify()
 
+
+@event.route('/checkInTable', methods=['POST'])
+@auth.login_required(perms=[4])
+def checkInTable():
+    data = request.get_json()
+
+    if 'id' not in data:
+        abort(400, 'Missing ID')
+
+    event_cols = db.checkInTable(data['id'])
+
+    return jsonify(event_cols)
+
+
+@event.route('/checkIn', methods=['POST'])
+@auth.login_required(perms=[4])
+def checkIn():
+    data = request.get_json()
