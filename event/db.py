@@ -239,6 +239,8 @@ def modifyRow(eventId, row):
     except Exception as e:
         print(e)
 
+    if len(row) - 2 != len(check_in_event_cols) + len(event_cols):
+        abort(400, 'Wrong column definition') 
 
  
     for i in range(0, len(event_cols)):

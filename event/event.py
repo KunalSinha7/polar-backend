@@ -148,10 +148,10 @@ def close():
 def checkInTable():
     data = request.get_json()
 
-    if 'id' not in data:
+    if 'eventId' not in data:
         abort(400, 'Missing ID')
 
-    event_cols = db.checkInTable(data['id'])
+    event_cols = db.checkInTable(data['eventId'])
 
     return jsonify(event_cols)
 
