@@ -200,3 +200,46 @@ def insertCol():
             db.insertCheckInCol(data['eventId'], d['Question'])
     
     return 'Success'
+
+
+@event.route('/deleteCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def deleteCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+    
+    return 'Success'
+
+
+@event.route('/modifyCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def modifyCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+
+    eventId = data['eventId']
+    checkInCols = db.getCheckInCols(eventId)
+    eventCols = db.getEventCols(eventId)
+
+
+    for r in data['data']:
+        if r['before'] in eventCols:
+            if r['IsRsvp'] is True:
+                print("event change only")
+            else:
+                db.moveColEventToCheckIn(eventId, r['before'], r['Question'])
+        elif r['before'] in checkInCols:
+            if r['IsRsvp'] is False:
+                print("check in change")
+            else:
+                db.moveColCheckInToEvent(eventId, r['before'], r['Question'])
+        else:
+            print(eventCols)
+            print(checkInCols)
+            abort(400, 'Column ' + r['before'] + ' not found')
+
+    return 'Success'

@@ -302,3 +302,150 @@ def insertCheckInCol(eventId, col):
     except MySQLdb.OperationalError as e:
         print(e)
         abort(400, 'Column ' + col + ' already exists')
+
+
+def deleteRsvpCol(eventId, col):
+    remove_column_cmd = '''ALTER TABLE event_{} DROP COLUMN `%s`;'''.format(eventId)
+
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(remove_column_cmd, [col])
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+def deleteCheckInCol(eventId, col):
+    remove_column_cmd = '''ALTER TABLE check_in_event_{} DROP COLUMN `%s`;'''.format(eventId)
+
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(remove_column_cmd, [col])
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+
+def getCheckInCols(eventId):
+    get_event_cols_cmd = '''SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'check_in_event_{}';'''.format(eventId)
+    print(get_event_cols_cmd)
+
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(get_event_cols_cmd)
+        cols = cursor.fetchall()
+        out = []
+        for c in range(1, len(cols)):
+            out.append(cols[c][0].replace('\'', ''))
+
+        return out
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+
+def getEventCols(eventId):
+    get_event_cols_cmd = '''SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'event_{}';'''.format(eventId)
+
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(get_event_cols_cmd)
+        cols = cursor.fetchall()
+        out = []
+        for c in range(1, len(cols)):
+            out.append(cols[c][0].replace('\'', ''))
+
+        return out
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+
+
+def moveColEventToCheckIn(eventId, beforeCol, afterCol):
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    get_before_vals = '''select userId, `%s` from event_{};'''.format(eventId)
+    values = []
+
+    try:
+        cursor.execute(get_before_vals, [beforeCol])
+        cols = cursor.fetchall()
+        for c in range(0, len(cols)):
+            values.append(cols[c])
+
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+    deleteRsvpCol(eventId, beforeCol)
+    try:
+        insertCheckInCol(eventId, afterCol)
+    except Exception as e:
+        print(e)
+        insertRsvpCol(eventId, afterCol)
+        update_bad_cmd = '''update event_{} set `%s` = %s where userId = %s;'''.format(eventId)
+        for v in values:
+            cursor.execute(update_bad_cmd, [afterCol, v[1], int(v[0])])
+
+
+    update_cmd = '''update check_in_event_{} set `%s` = %s where userId = %s;'''.format(eventId)
+
+    for v in values:
+        print(v)
+        print(int(v[0]))
+        cursor.execute(update_cmd, [afterCol, v[1], int(v[0])])
+
+    conn.commit()
+
+
+
+def moveColCheckInToEvent(eventId, beforeCol, afterCol):
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    get_before_vals = '''select userId, `%s` from check_in_event_{};'''.format(eventId)
+    values = []
+
+    try:
+        cursor.execute(get_before_vals, [beforeCol])
+        cols = cursor.fetchall()
+        for c in range(0, len(cols)):
+            values.append(cols[c])
+
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+
+
+    print("AFTER")
+
+    deleteCheckInCol(eventId, beforeCol)
+    try:
+        insertRsvpCol(eventId, afterCol)
+    except Exception as e:
+        print(e)
+        insertRsvpCol(eventId, afterCol)
+        update_bad_cmd = '''update check_in_event_{} set `%s` = %s where userId = %s;'''.format(eventId)
+        for v in values:
+            cursor.execute(update_bad_cmd, [afterCol, v[1], int(v[0])])
+
+
+    update_cmd = '''update event_{} set `%s` = %s where userId = %s;'''.format(eventId)
+
+    for v in values:
+        print(v)
+        print(int(v[0]))
+        cursor.execute(update_cmd, [afterCol, v[1], int(v[0])])
+
+    conn.commit()
+
+modify_column_cmd = '''ALTER TABLE {} CHANGE `%s` `%s` varchar(256);'''
