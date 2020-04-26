@@ -34,7 +34,7 @@ def createTable():
     table_id = db.createTable(data['tableName'])
 
     for c in data['columns']:
-        db.addColumn_id(table_id, c)
+        db.addColumn_id(table_id, c, g.userId)
 
     return 'success'
 
@@ -67,7 +67,7 @@ def addColumn():
 
     column = data['columnName'].strip()
     column = column.replace('`', '')
-    db.addColumn_id(data['tableId'], column)
+    db.addColumn_id(data['tableId'], column, g.userId)
 
     return 'success'
 
@@ -84,7 +84,7 @@ def deleteColumn():
         abort(400, 'This table does not exist')
 
     column = data['columnName'].strip()
-    db.removeColumn(data['tableId'], column)
+    db.removeColumn(data['tableId'], column, g.userId)
 
     return 'success'
 
@@ -105,7 +105,7 @@ def modifyColumn():
 
     oldCol = data['originalColumn'].strip()
     newCol = data['newColumn'].strip()
-    db.modifyColumn(data['tableId'], oldCol, newCol)
+    db.modifyColumn(data['tableId'], oldCol, newCol, g.userId)
 
     return 'success'
 
@@ -135,7 +135,7 @@ def modifyTableName():
     if '(' in data['name'] or ')' in data['name']:
         abort(400, 'Illegal table name')
 
-    db.modifyTableName(data['tableId'], data['name'])
+    db.modifyTableName(data['tableId'], data['name'], g.userId)
 
     return 'success'
 
@@ -144,6 +144,7 @@ def modifyTableName():
 @auth.login_required(perms=[10])
 def addEntry():
     data = request.get_json()
+    data['userId'] = g.userId
 
     if 'tableId' not in data or 'contents' not in data:
         abort(400, 'Missing tableId')
@@ -161,7 +162,7 @@ def removeEntry():
     if 'tableId' not in data or 'id' not in data:
         abort(400, 'Missing tableID or iD')
     
-    db.removeEntry(data['tableId'], data['id'])
+    db.removeEntry(data['tableId'], data['id'], g.userId)
 
     return jsonify()
 
@@ -181,6 +182,7 @@ def viewTable():
 @auth.login_required(perms=[10])
 def modifyEntry():
     data = request.get_json()
+    data['userId'] = g.userId
     
     if 'tableId' not in data or 'contents' not in data:
         abort(400, 'Missing data')
@@ -207,3 +209,74 @@ def export():
             writer.writerow(row)
 
     return send_file("table.csv", as_attachment=True)
+
+
+@table.route('/track', methods=['POST'])
+@auth.login_required(perms=[9])
+def track():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    db.track(data['tableId'])
+
+    return jsonify()
+
+
+@table.route('/untrack', methods=['POST'])
+@auth.login_required(perms=[9])
+def untrack():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    db.untrack(data['tableId'])
+
+    return jsonify()
+
+
+@table.route('/itemHistory', methods=['POST'])
+@auth.login_required(perms=[8])
+def itemHistory():
+    data = request.get_json()
+    if 'tableId' not in data or 'id' not in data:
+        abort(400, 'Missing ID')
+    
+    res = db.itemHistory(int(data['tableId']), int(data['id']))
+    resp = []
+
+    for row in res:
+        json = {}
+        json['value'] = row[4]
+        json['time'] = row[6]
+        json['type'] = row[7]
+        resp.append(json)    
+
+    return jsonify(resp)
+
+
+@table.route('/tableHistory', methods=['POST'])
+@auth.login_required(perms=[8])
+def history():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    res = db.history(int(data['tableId']))
+    resp = []
+
+    for row in res:
+        json = {}
+        json['type'] = row[7]
+        json['time'] = row[6]
+
+        if row[7] in [0, 3, 6]:
+            json['value'] = row[3] + ' was changed to ' + row[4]
+        if row[7] in [1, 4]:
+            json['value'] = row[4] + ' was added'
+        if row[7] in [2, 5]:
+            json['value'] = row[3] + ' was removed'
+
+        resp.append(json)
+    
+    return jsonify(resp)
