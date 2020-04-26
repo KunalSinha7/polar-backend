@@ -201,18 +201,6 @@ def insertCol():
     
     return 'Success'
 
-
-@event.route('/deleteCol', methods=['POST'])
-@auth.login_required(perms=[4])
-def deleteCol():
-    data = request.get_json()
-
-    if 'eventId' not in data or 'data' not in data:
-        abort(400, 'eventId or data not in request')
-    
-    return 'Success'
-
-
 @event.route('/modifyCol', methods=['POST'])
 @auth.login_required(perms=[4])
 def modifyCol():
@@ -241,5 +229,32 @@ def modifyCol():
             print(eventCols)
             print(checkInCols)
             abort(400, 'Column ' + r['before'] + ' not found')
+
+    return 'Success'
+
+
+
+@event.route('/deleteCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def deleteCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+
+    eventId = data['eventId']
+    checkInCols = db.getCheckInCols(eventId)
+    eventCols = db.getEventCols(eventId)
+
+
+    for r in data['data']:
+        if r in eventCols:
+            print(r + ' is an event col') 
+            db.deleteRsvpCol(eventId, r)
+        elif r in checkInCols:
+            db.deleteCheckInCol(eventId, r)
+            print(r + ' is a check in col')
+        else:
+            abort(400, 'Column ' + r + ' not found')
 
     return 'Success'
