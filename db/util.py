@@ -37,7 +37,7 @@ tables['UserRoles'] = '''CREATE TABLE IF NOT EXISTS `UserRoles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 '''
 
-tables['Event'] = '''CREATE TABLE `Event` (
+tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
   `eventId` int(11) NOT NULL AUTO_INCREMENT,
   `eventName` varchar(256) NOT NULL DEFAULT '',
   `startTime` datetime DEFAULT NULL,
@@ -48,13 +48,13 @@ tables['Event'] = '''CREATE TABLE `Event` (
   `reminderTime` int(11) DEFAULT NULL,
   `closed` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`eventId`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 '''
 
 tables['CheckIn'] = '''CREATE TABLE IF NOT EXISTS `CheckIn` (
   `userId` int(11) NOT NULL,
   `eventId` int(11) NOT NULL,
-  `checkedIn` tinyint(1) NOT NULL DEFAULT '0',,
+  `checkedIn` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`,`eventId`),
   CONSTRAINT `UserToUser` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
