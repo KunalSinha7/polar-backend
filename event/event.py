@@ -229,12 +229,12 @@ def modifyCol():
     for r in data['data']:
         if r['before'] in eventCols:
             if r['IsRsvp'] is True:
-                print("event change only")
+                db.modifyEventCol(eventId, r['before'], r['Question'])
             else:
                 db.moveColEventToCheckIn(eventId, r['before'], r['Question'])
         elif r['before'] in checkInCols:
             if r['IsRsvp'] is False:
-                print("check in change")
+                db.modifyCheckInCol(eventId, r['before'], r['Question'])
             else:
                 db.moveColCheckInToEvent(eventId, r['before'], r['Question'])
         else:

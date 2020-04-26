@@ -448,4 +448,25 @@ def moveColCheckInToEvent(eventId, beforeCol, afterCol):
 
     conn.commit()
 
-modify_column_cmd = '''ALTER TABLE {} CHANGE `%s` `%s` varchar(256);'''
+
+def modifyCheckInCol(eventId, beforeCol, afterCol):
+    modify_check_in_column_cmd = '''ALTER TABLE check_in_event_{} CHANGE `%s` `%s` varchar(256);'''.format(eventId)
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(modify_check_in_column_cmd, [beforeCol, afterCol])
+    except Exception as e:
+        print(e)
+
+
+def modifyEventCol(eventId, beforeCol, afterCol):
+    modify_check_in_column_cmd = '''ALTER TABLE event_{} CHANGE `%s` `%s` varchar(256);'''.format(eventId)
+    conn = db.conn()
+    cursor =  conn.cursor()
+
+    try:
+        cursor.execute(modify_check_in_column_cmd, [beforeCol, afterCol])
+    except Exception as e:
+        print(e)
+
