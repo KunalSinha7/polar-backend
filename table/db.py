@@ -381,10 +381,10 @@ def untrack(id):
     conn = db.conn()
     cursor = conn.cursor()
 
-    track_cmd = 'UPDATE Tables SET trackHistory = 0 WHERE tableId = %s;'
+    untrack_cmd = 'UPDATE Tables SET trackHistory = 0 WHERE tableId = %s;'
     delete_cmd = 'DELETE FROM TableHistory WHERE tableId =  %s;'
     
-    cursor.execute(track_cmd, [id])
+    cursor.execute(delete_cmd, [id])
     cursor.execute(untrack_cmd, [id])
 
     conn.commit()
