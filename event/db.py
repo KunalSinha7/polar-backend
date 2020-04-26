@@ -2,6 +2,7 @@ from flask import abort
 import db
 import MySQLdb
 
+
 def all():
     conn = db.conn()
     cursor = conn.cursor()
@@ -25,7 +26,7 @@ def details(id, userId):
 
     if res is None:
         abort(400, "Event does not exist")
-    
+
     cursor.execute(rsvp_cmd, [int(id), userId])
 
     rsvp = {}
@@ -35,14 +36,16 @@ def details(id, userId):
     if ret == None:
         rsvp['response'] = False
         for i in range(1, len(cursor.description)):
-            rsvp['questions'].append(cursor.description[i][0].replace('\'', ''))
+            rsvp['questions'].append(
+                cursor.description[i][0].replace('\'', ''))
     else:
         rsvp['response'] = True
         rsvp['answers'] = []
         for i in range(1, len(cursor.description)):
-            rsvp['questions'].append(cursor.description[i][0].replace('\'', ''))
+            rsvp['questions'].append(
+                cursor.description[i][0].replace('\'', ''))
             rsvp['answers'].append(ret[i])
-    
+
     return res, rsvp
 
 
@@ -53,13 +56,14 @@ def create(data):
     create_cmd = '''INSERT INTO Event
         (eventName, startTime, endTime, location, description, reminder, reminderTime) VALUES
         (%s, %s, %s, %s, %s, %s, %s);'''
-    
+
     table_cmd = '''CREATE TABLE event_%s (
         userId int(11) NOT NULL UNIQUE PRIMARY KEY'''
 
     check_in_table_cmd = '''CREATE TABLE check_in_event_{} (userId int(11) NOT NULL UNIQUE PRIMARY KEY);'''
 
-    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], int(data['reminder']), int(data['reminderTime'])]
+    args = [data['name'], data['startTime'], data['endTime'], data['location'],
+            data['desc'], int(data['reminder']), int(data['reminderTime'])]
     cursor.execute(create_cmd, args)
 
     table_id = cursor.lastrowid
@@ -67,7 +71,7 @@ def create(data):
     for col in data['questions']:
         table_cmd += ', `%s` varchar(256)'
         args.append(col)
-    
+
     table_cmd += ');'
 
     cursor.execute(table_cmd, args)
@@ -98,8 +102,9 @@ def modify(data):
     modify_cmd = '''UPDATE Event SET
         eventName = %s, startTime = %s, endTime = %s, location = %s, description = %s, reminder = %s, reminderTime = %s
         WHERE eventId = %s;'''
-    
-    args = [data['name'], data['startTime'], data['endTime'], data['location'], data['desc'], int(data['reminder']), int(data['reminderTime']), data['id']]
+
+    args = [data['name'], data['startTime'], data['endTime'], data['location'],
+            data['desc'], int(data['reminder']), int(data['reminderTime']), data['id']]
     cursor.execute(modify_cmd, args)
 
     conn.commit()
@@ -121,12 +126,13 @@ def rsvp(data):
     for resp in data['answers']:
         args.append(resp)
         rsvp_cmd += ", %s"
-    
+
     rsvp_cmd += ");"
 
     try:
         cursor.execute(rsvp_cmd, args)
-        cursor.execute(check_in_rsvp_cmd, [int(data['id']), int(data['userId'])])
+        cursor.execute(check_in_rsvp_cmd, [
+                       int(data['id']), int(data['userId'])])
         cursor.execute(check_in_cmd, [int(data['userId']), int(data['id'])])
     except MySQLdb.ProgrammingError:
         abort(400, "Event does not exist")
@@ -171,12 +177,12 @@ def rsvpList(eventId):
 def close(id):
     conn = db.conn()
     cursor = conn.cursor()
-    
+
     close_cmd = 'UPDATE Event SET closed = 1 WHERE eventID = %s;'
 
     cursor.execute(close_cmd, [id])
 
-    conn.commit()    
+    conn.commit()
     return True
 
 
@@ -199,6 +205,7 @@ def checkInTable(id):
     except MySQLdb.ProgrammingError as e:
         print(e)
         abort(400, "Event does not exist")
+
 
 def checkIn(userId, eventId):
     conn = db.conn()
@@ -227,10 +234,9 @@ def modifyRow(eventId, row):
         cursor.execute(get_event_cols_cmd, ['event_' + eventId])
         cols = cursor.fetchall()
 
-
         for i in range(1, len(cols)):
             event_cols.append(cols[i][0])
-            
+
         cursor.execute(get_event_cols_cmd, ['check_in_event_' + eventId])
         cols = cursor.fetchall()
 
@@ -240,43 +246,59 @@ def modifyRow(eventId, row):
         print(e)
 
     if len(row) - 2 != len(check_in_event_cols) + len(event_cols):
-        abort(400, 'Wrong column definition') 
+        abort(400, 'Wrong column definition')
 
- 
     for i in range(0, len(event_cols)):
-        update_col_cmd = '''update event_{} set `{}`=%s where userId = %s;'''.format(eventId, event_cols[i])
+        update_col_cmd = '''update event_{} set `{}`=%s where userId = %s;'''.format(
+            eventId, event_cols[i])
 
         try:
             cursor.execute(update_col_cmd, [row[i+1], userId])
         except Exception as e:
             print(e)
 
-
     for i in range(0, len(check_in_event_cols)):
-        update_col_cmd = '''update check_in_event_{} set `{}`=%s where userId = %s;'''.format(eventId, check_in_event_cols[i])
+        update_col_cmd = '''update check_in_event_{} set `{}`=%s where userId = %s;'''.format(
+            eventId, check_in_event_cols[i])
 
         try:
-            cursor.execute(update_col_cmd, [row[len(event_cols) + 1 + i], userId])
+            cursor.execute(update_col_cmd, [
+                           row[len(event_cols) + 1 + i], userId])
         except Exception as e:
             print(e)
-
-
 
     conn.commit()
 
 
-def removeCol(id, name):
+def insertRsvpCol(eventId, col):
     conn = db.conn()
     cursor = conn.cursor()
 
-    get_event_cols_cmd = '''SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s';'''
+    add_column_cmd = '''ALTER TABLE event_{} ADD COLUMN `%s` varchar(256);'''.format(
+        eventId)
 
     try:
-        cursor.execute(get_event_cols_cmd, [id])
-        cols = cursor.fetchall()
-
-
-        return cols
+        cursor.execute(add_column_cmd, [col])
     except MySQLdb.ProgrammingError as e:
         print(e)
         abort(400, 'Event does not exist')
+    except MySQLdb.OperationalError as e:
+        print(e)
+        abort(400, 'Column ' + col + ' already exists')
+
+
+def insertCheckInCol(eventId, col):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    add_column_cmd = '''ALTER TABLE check_in_event_{} ADD COLUMN `%s` varchar(256);'''.format(
+        eventId)
+
+    try:
+        cursor.execute(add_column_cmd, [col])
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exist')
+    except MySQLdb.OperationalError as e:
+        print(e)
+        abort(400, 'Column ' + col + ' already exists')
