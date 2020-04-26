@@ -233,3 +233,50 @@ def untrack():
     db.untrack(data['tableId'])
 
     return jsonify()
+
+
+@table.route('/itemHistory', methods=['POST'])
+@auth.login_required(perms=[8])
+def itemHistory():
+    data = request.get_json()
+    if 'tableId' not in data or 'id' not in data:
+        abort(400, 'Missing ID')
+    
+    res = db.itemHistory(int(data['tableId']), int(data['id']))
+    resp = []
+
+    for row in res:
+        json = {}
+        json['value'] = row[4]
+        json['time'] = row[6]
+        json['type'] = row[7]
+        resp.append(json)    
+
+    return jsonify(resp)
+
+
+@table.route('/tableHistory', methods=['POST'])
+@auth.login_required(perms=[8])
+def history():
+    data = request.get_json()
+    if 'tableId' not in data:
+        abort(400, 'Missing table ID')
+    
+    res = db.history(int(data['tableId']))
+    resp = []
+
+    for row in res:
+        json = {}
+        json['type'] = row[7]
+        json['time'] = row[6]
+
+        if row[7] in [0, 3, 6]:
+            json['value'] = row[3] + ' was changed to ' + row[4]
+        if row[7] in [1, 4]:
+            json['value'] = row[4] + ' was added'
+        if row[7] in [2, 5]:
+            json['value'] = row[3] + ' was removed'
+
+        resp.append(json)
+    
+    return jsonify(resp)

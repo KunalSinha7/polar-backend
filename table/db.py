@@ -389,3 +389,27 @@ def untrack(id):
 
     conn.commit()
     return True
+
+
+def itemHistory(table, id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    item_history_cmd = 'SELECT * FROM TableHistory WHERE tableId = %s AND rowId = %s ORDER BY changeId DESC;'
+
+    cursor.execute(item_history_cmd, [table, id])
+    res = cursor.fetchall()
+
+    return res
+
+
+def history(table):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    history_cmd = 'SELECT * FROM TableHistory WHERE tableId = %s;'
+    
+    cursor.execute(history_cmd, [table])
+    res = cursor.fetchall()
+
+    return res
