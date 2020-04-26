@@ -41,7 +41,7 @@ def checkTableExists(tableId):
         abort(500, 'Error in check tableExists')
 
 
-get_all_tables_cmd = '''select tableID, tableName from Tables;'''
+get_all_tables_cmd = '''select * from Tables;'''
 
 
 def getAllTables():
