@@ -258,3 +258,26 @@ def deleteCol():
             abort(400, 'Column ' + r + ' not found')
 
     return 'Success'
+
+
+
+@event.route('/colTypes', methods=['POST'])
+#@auth.login_required(perms=[4])
+def colType():
+    data = request.get_json()
+
+    if 'eventId' not in data:
+        abort(400, 'eventId not in data')
+
+    ecol = db.getEventCols(data['eventId'])
+    col = db.getCheckInCols(data['eventId'])
+    out = {}
+
+    for c in ecol:
+        out[c] = False
+    
+    for c in col:
+        out[c] = True
+
+
+    return jsonify(out)
