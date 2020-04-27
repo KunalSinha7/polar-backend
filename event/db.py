@@ -190,7 +190,7 @@ def checkInTable(id):
     conn = db.conn()
     cursor = conn.cursor()
 
-    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId) inner join (select userId, checkedIn from CheckIn where eventId = %s) as ci using(userId) inner join (select userId, firstName, lastName from Users) as u using(userId);'''
+    check_in_table_cmd = '''select * from (select userId, firstName, lastName from Users) as u inner join (select userId, checkedIn from CheckIn where eventId = %s) as ci using(userId) inner join event_%s e using(userId) inner join check_in_event_%s c using(userId) ;'''
 
     event_cols = []
 
@@ -248,12 +248,17 @@ def modifyRow(eventId, row):
     if len(row) - 4 != len(check_in_event_cols) + len(event_cols):
         abort(400, 'Wrong column definition')
 
+    print(event_cols)
+
     for i in range(0, len(event_cols)):
         update_col_cmd = '''update event_{} set `{}`=%s where userId = %s;'''.format(
             eventId, event_cols[i])
 
+        print(event_cols[i] + row[i+4])
+
         try:
-            cursor.execute(update_col_cmd, [row[i+1], userId])
+            cursor.execute(update_col_cmd, [row[i+4], userId])
+
         except Exception as e:
             print(e)
 
@@ -261,9 +266,12 @@ def modifyRow(eventId, row):
         update_col_cmd = '''update check_in_event_{} set `{}`=%s where userId = %s;'''.format(
             eventId, check_in_event_cols[i])
 
+        print(check_in_event_cols[i], row[len(event_cols) + 4 + i])
+
         try:
             cursor.execute(update_col_cmd, [
-                           row[len(event_cols) + 1 + i], userId])
+                           row[len(event_cols) + 4 + i], userId])
+
         except Exception as e:
             print(e)
 
