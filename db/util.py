@@ -44,7 +44,9 @@ tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
   `endTime` datetime DEFAULT NULL,
   `location` text,
   `description` text,
-  `closed` boolean DEFAULT 0,
+  `reminder` int(11) DEFAULT '0',
+  `reminderTime` int(11) DEFAULT NULL,
+  `closed` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`eventId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 '''
@@ -52,7 +54,7 @@ tables['Event'] = '''CREATE TABLE IF NOT EXISTS `Event` (
 tables['CheckIn'] = '''CREATE TABLE IF NOT EXISTS `CheckIn` (
   `userId` int(11) NOT NULL,
   `eventId` int(11) NOT NULL,
-  `checkedIn` tinyint(1) NOT NULL,
+  `checkedIn` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`,`eventId`),
   CONSTRAINT `UserToUser` FOREIGN KEY (`userId`) REFERENCES `Users` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -52,3 +52,29 @@ def get_all_roles():
 
     cursor.execute(get_all_roles_cmd)
     return cursor.fetchall()
+
+
+
+def get_check_in_users(eventId):
+    get_check_in_cmd = '''select u.email, u.phone from CheckIn as e join Users as u on e.userId = u.userId where e.eventId = %s;'''
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(get_check_in_cmd, [eventId])
+        return cursor.fetchall()
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exists')
+
+def get_rsvp_users(eventId):
+    get_rsvp_cmd = '''select u.email, u.phone from event_{} as e join Users as u on e.userId = u.userId;'''.format(eventId)
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(get_rsvp_cmd)
+        return cursor.fetchall()
+    except MySQLdb.ProgrammingError as e:
+        print(e)
+        abort(400, 'Event does not exists')

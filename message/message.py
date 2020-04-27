@@ -179,3 +179,61 @@ def getUsers():
 @auth.login_required(perms=[7])
 def getRoles():
     return jsonify(db.get_all_roles())
+
+
+
+@message.route('/eventCheckIn', methods=['POST'])
+@auth.login_required(perms=[4])
+def eventCheckIn():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'message' not in data or 'type' not in data:
+        abort(400, 'eventId, message or type not in request')
+
+    users = db.get_check_in_users(data['eventId'])
+    mtype = data['type']
+
+    for u in users:
+        if mtype == 'email' or mtype == 'both':
+            subject = 'A message from polar'
+
+            if 'subject' in data:
+                subject = data['subject']
+            
+            mail.sendEmail(u[0], subject, data['message'])
+        
+        if mtype == 'text' or mtype == 'both':
+            if u[1] is not None and len(u[1]) > 0:
+                text.sendSMS(u[1], data['message'])
+
+
+    return 'Success'
+
+
+@message.route('/eventRSVP', methods=['POST'])
+@auth.login_required(perms=[4])
+def eventRSVP():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'message' not in data or 'type' not in data:
+        abort(400, 'eventId, message or type not in request')
+
+    users = db.get_rsvp_users(data['eventId'])
+    mtype = data['type']
+    print(users)
+
+    for u in users:
+        if mtype == 'email' or mtype == 'both':
+            subject = 'A message from polar'
+
+            if 'subject' in data:
+                subject = data['subject']
+            
+            mail.sendEmail(u[0], subject, data['message'])
+        
+        if mtype == 'text' or mtype == 'both':
+            if u[1] is not None and len(u[1]) > 0:
+                text.sendSMS(u[1], data['message'])
+
+
+    return 'Success'

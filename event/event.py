@@ -20,7 +20,7 @@ def all():
         json['startTime'] = row[2]
         json['endTime'] = row[3]
         resp.append(json)
-    
+
     return jsonify(resp)
 
 
@@ -30,7 +30,7 @@ def details():
     data = request.get_json()
     if 'id' not in data:
         abort(400, "Missing ID")
-    
+
     res, rsvp = db.details(data['id'], g.userId)
 
     resp = {
@@ -71,9 +71,9 @@ def delete():
     data = request.get_json()
     if 'id' not in data:
         abort(400, "Missing ID")
-    
+
     db.delete(data['id'])
-    
+
     return jsonify()
 
 
@@ -83,7 +83,7 @@ def modify():
     data = request.get_json()
     if 'id' not in data or 'name' not in data or 'startTime' not in data or 'endTime' not in data or 'location' not in data or 'desc' not in data or 'reminder' not in data or 'reminderTime' not in data:
         abort(400, "Missing data")
-    
+
     db.modify(data)
 
     return jsonify()
@@ -109,7 +109,7 @@ def unrsvp():
     data = request.get_json()
     if 'id' not in data:
         abort(400, "Missing ID")
-    
+
     db.unrsvp(data['id'], g.userId)
     return jsonify()
 
@@ -134,11 +134,127 @@ def rsvpList():
 @auth.login_required(perms=[3])
 def close():
     data = request.get_json()
-    
+
     if 'id' not in data:
         abort(400, "Missing ID")
-    
+
     db.close(data['id'])
 
     return jsonify()
 
+
+@event.route('/checkInTable', methods=['POST'])
+@auth.login_required(perms=[4])
+def checkInTable():
+    data = request.get_json()
+
+    if 'eventId' not in data:
+        abort(400, 'Missing ID')
+
+    event_cols = db.checkInTable(data['eventId'])
+
+    return jsonify(event_cols)
+
+
+@event.route('/checkIn', methods=['POST'])
+@auth.login_required(perms=[4])
+def checkIn():
+    data = request.get_json()
+
+    if 'userId' not in data or 'eventId' not in data:
+        abort(400, 'Missing userId or eventId')
+
+    db.checkIn(data['userId'], data['eventId'])
+
+    return 'Success'
+
+
+@event.route('/modifyRow', methods=['POST'])
+@auth.login_required(perms=[4])
+def modifyRow():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'contents' not in data:
+        abort(400, 'Missing eventId or contents')
+
+    db.modifyRow(data['eventId'], data['contents'])
+
+    return 'Success'
+
+
+@event.route('/insertCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def insertCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+
+    for d in data['data']:
+        if 'Question' not in d or 'IsRsvp' not in d:
+            abort(400, 'Incorrect request, missing Question or IsRsvp')
+
+        if d['IsRsvp']:
+            db.insertRsvpCol(data['eventId'], d['Question'])
+        else:
+            db.insertCheckInCol(data['eventId'], d['Question'])
+    
+    return 'Success'
+
+@event.route('/modifyCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def modifyCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+
+    eventId = data['eventId']
+    checkInCols = db.getCheckInCols(eventId)
+    eventCols = db.getEventCols(eventId)
+
+
+    for r in data['data']:
+        if r['before'] in eventCols:
+            if r['IsRsvp'] is True:
+                db.modifyEventCol(eventId, r['before'], r['Question'])
+            else:
+                db.moveColEventToCheckIn(eventId, r['before'], r['Question'])
+        elif r['before'] in checkInCols:
+            if r['IsRsvp'] is False:
+                db.modifyCheckInCol(eventId, r['before'], r['Question'])
+            else:
+                db.moveColCheckInToEvent(eventId, r['before'], r['Question'])
+        else:
+            print(eventCols)
+            print(checkInCols)
+            abort(400, 'Column ' + r['before'] + ' not found')
+
+    return 'Success'
+
+
+
+@event.route('/deleteCol', methods=['POST'])
+@auth.login_required(perms=[4])
+def deleteCol():
+    data = request.get_json()
+
+    if 'eventId' not in data or 'data' not in data:
+        abort(400, 'eventId or data not in request')
+
+    eventId = data['eventId']
+    checkInCols = db.getCheckInCols(eventId)
+    eventCols = db.getEventCols(eventId)
+
+
+    for r in data['data']:
+        if r in eventCols:
+            print(r + ' is an event col') 
+            db.deleteRsvpCol(eventId, r)
+        elif r in checkInCols:
+            db.deleteCheckInCol(eventId, r)
+            print(r + ' is a check in col')
+        else:
+            abort(400, 'Column ' + r + ' not found')
+
+    return 'Success'
