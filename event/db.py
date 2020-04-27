@@ -190,12 +190,12 @@ def checkInTable(id):
     conn = db.conn()
     cursor = conn.cursor()
 
-    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId) inner join (select userId, checkedIn from CheckIn) as ci using(userId);'''
+    check_in_table_cmd = '''select * from event_%s e inner join check_in_event_%s c using(userId) inner join (select userId, checkedIn from CheckIn where eventId = %s) as ci using(userId) inner join (select userId, firstName, lastName from Users) as u using(userId);'''
 
     event_cols = []
 
     try:
-        cursor.execute(check_in_table_cmd, [int(id), int(id)])
+        cursor.execute(check_in_table_cmd, [int(id), int(id), int(id)])
         cols = [i[0] for i in cursor.description]
         res = list(cursor.fetchall())
         res.insert(0, cols)
@@ -245,7 +245,7 @@ def modifyRow(eventId, row):
     except Exception as e:
         print(e)
 
-    if len(row) - 2 != len(check_in_event_cols) + len(event_cols):
+    if len(row) - 4 != len(check_in_event_cols) + len(event_cols):
         abort(400, 'Wrong column definition')
 
     for i in range(0, len(event_cols)):
