@@ -262,7 +262,7 @@ def deleteCol():
 
 
 @event.route('/colTypes', methods=['POST'])
-#@auth.login_required(perms=[4])
+@auth.login_required(perms=[4])
 def colType():
     data = request.get_json()
 
