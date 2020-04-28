@@ -121,5 +121,94 @@ class EventTestCase(BaseTestCase):
         })
         self.assertEqual(response.status_code, 400)
 
-    
+    def test_event_rsvp(self):
+        response = self.post("/event/rsvp", {
+            "auth": self.__class__.auth,
+            "id": 1,
+            "answers": ['cs', 'dvaz', '2012']
+        })
+        self.assertEqual(response.status_code, 200)
 
+        response = self.post("/event/unrsvp", {
+            "auth": self.__class__.auth,
+            "id": 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_rsvp_invalid(self):
+        response = self.post("/event/unrsvp", {})
+        self.assertEqual(response.status_code, 401)
+
+        response = self.post("/event/rsvp", {})
+        self.assertEqual(response.status_code, 401)
+
+        response = self.post("/event/rsvp", {
+            "auth": self.__class__.auth,
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post("/event/rsvp", {
+            "auth": self.__class__.auth,
+            "id": 71
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post("/event/rsvp", {
+            "auth": self.__class__.auth,
+            "id": 1,
+            "answers": ["no"]
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post("/event/unrsvp", {
+            "auth": self.__class__.auth
+        })
+        self.assertEqual(response.status_code, 400)
+    
+    def test_event_table_close(self):
+        response = self.post('event/close', {
+            "auth": self.__class__.auth,
+            "id": 1
+        })
+        self.assertEqual(response.status_code, 200)
+    
+    def test_event_table_close_invalid(self):
+        response = self.post('event/close', {})
+        self.assertEqual(response.status_code, 401)
+
+        response = self.post('event/close', {
+            "auth": self.fake_user()
+        })
+        self.assertEqual(response.status_code, 403)
+
+        response = self.post('event/close', {
+            "auth": self.__class__.auth
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_event_table_remove(self):
+        response = self.post('/event/delete', {
+            "auth": self.__class__.auth,
+            "id": 1
+        })
+        self.assertEqual(response.status_code, 200)
+
+        response = self.post('/event/details', {
+            "auth": self.__class__.auth,
+            "id": 1
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_event_table_remove_invalid(self):
+        response = self.post('/event/delete', {})
+        self.assertEqual(response.status_code, 401)
+
+        response = self.post('/event/delete', {
+            "auth": self.__class__.auth
+        })
+        self.assertEqual(response.status_code, 400)
+
+        response = self.post('/event/delete', {
+            "auth": self.fake_user()
+        })
+        self.assertEqual(response.status_code, 403)
