@@ -764,4 +764,21 @@ class TableHistoryTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(data), 0)
 
+    def test_table_export_create(self):
+        contents = ['a', 'b', 'c', 'd', 'e', 'f']
+        for i in range(0, len(contents)):
+            response = self.post('table/addEntry', {
+                "auth": self.__class__.auth,
+                "tableId": self.__class__.id,
+                "contents": [contents[i], i]                
+            })
+            self.assertEqual(response.status_code, 200)
+
+    def test_table_export_download(self):
+        response = self.post('table/export', {
+            "auth": self.__class__.auth,
+            "tableId": self.__class__.id
+        })
+        self.assertEqual(response.status_code, 200)
+
     
