@@ -114,8 +114,8 @@ for e in events:
                 time_str = time_str + str(minute) + ' minutes.'
 
                 mail.sendEmail(u[1], subject, body + time_str)
-                text.sendSMS(u[2], 'This message is to remind you about {} starting in {}'.format(
-                    e[1], time_str))
+                if u[2] is not None:
+                    text.sendSMS(u[2], 'This message is to remind you about {} starting in {}'.format(e[1], time_str))
         except Exception as e:
             with open('/home/ubuntu/flaskapp/log.txt', 'a') as myFile:
                 myFile.write("ERROR " + str(e))
