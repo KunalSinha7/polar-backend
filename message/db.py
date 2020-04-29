@@ -56,7 +56,7 @@ def get_all_roles():
 
 
 def get_check_in_users(eventId):
-    get_check_in_cmd = '''select u.email, u.phone from CheckIn as e join Users as u on e.userId = u.userId where e.eventId = %s and checkIn = 1;'''
+    get_check_in_cmd = '''select u.email, u.phone from CheckIn as e join Users as u on e.userId = u.userId where e.eventId = %s and e.checkIn = 1;'''
     conn = db.conn()
     cursor = conn.cursor()
 
