@@ -1,13 +1,28 @@
 from flask import abort
 import MySQLdb
 import db
+from datetime import datetime
 
 
 def make_table_name(id):
     return 'table_' + str(id)
 
+time = lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+tracking_enabled = ((1,),)
+tracking_disabled = ((0,),)
 
 check_table_id_cmd = '''select * from Tables where tableId = %s;'''
+
+check_tracking_cmd = 'SELECT trackHistory FROM Tables WHERE tableId = %s;'
+
+insert_history_cmd = '''
+INSERT INTO TableHistory 
+(tableId, rowId, beforeVal, afterVal, userChangeId, time, type) 
+VALUES (%s, %s, %s, %s, %s, %s, %s);
+'''
+
+get_row_cmd = 'SELECT * FROM table_%s WHERE id = %s;'
 
 
 def checkTableExists(tableId):
@@ -26,7 +41,7 @@ def checkTableExists(tableId):
         abort(500, 'Error in check tableExists')
 
 
-get_all_tables_cmd = '''select tableID, tableName from Tables;'''
+get_all_tables_cmd = '''select * from Tables;'''
 
 
 def getAllTables():
@@ -66,15 +81,23 @@ def createTable(tableName):
 add_column_cmd = '''ALTER TABLE {} ADD COLUMN `{}` text;'''
 
 
-def addColumn_id(tableId, name):
+def addColumn_id(tableId, name, userId):
     add = add_column_cmd.format(make_table_name(tableId), name)
-    print(add)
 
     conn = db.conn()
     cursor = conn.cursor()
 
     try:
         cursor.execute(add)
+        
+        cursor.execute(check_tracking_cmd, [tableId])
+        if cursor.fetchall() == tracking_disabled:
+            return
+        
+        args = [tableId, 0, "", "Column '" + name + "'", userId, time(), 4]
+
+        cursor.execute(insert_history_cmd, args)
+        conn.commit()
     except MySQLdb.OperationalError as ex:
         abort(400, 'This column already exists')
     except Exception as e:
@@ -86,7 +109,7 @@ def addColumn_id(tableId, name):
 remove_column_cmd = '''ALTER TABLE {} DROP COLUMN `{}`;'''
 
 
-def removeColumn(tableId, name):
+def removeColumn(tableId, name, userId):
     if name == 'id':
         abort(400, 'Cannot remove this column')
 
@@ -97,6 +120,15 @@ def removeColumn(tableId, name):
 
     try:
         cursor.execute(remove)
+
+        cursor.execute(check_tracking_cmd, [tableId])
+        if cursor.fetchall() == tracking_disabled:
+            return
+        
+        args = [tableId, 0, "Column '" + name + "'", "", userId, time(), 5]
+
+        cursor.execute(insert_history_cmd, args)
+        conn.commit()
     except MySQLdb.OperationalError as err:
         print(err)
         abort(400, 'This column does not exist')
@@ -112,6 +144,7 @@ select_table_cmd = '''select * from {};'''
 
 def delete_table(tableId):
     drop = delete_table_cmd.format(make_table_name(tableId))
+    delete_cmd = 'DELETE FROM TableHistory WHERE tableId =  %s;'
     conn = db.conn()
     cursor = conn.cursor()
 
@@ -122,6 +155,10 @@ def delete_table(tableId):
         abort(400, 'Table does not exist')
 
     try:
+        res = cursor.fetchone()
+        if res[2] == 1:
+            cursor.execute(delete_cmd, [tableId])
+
         cursor.execute(delete_entry_cmd, [tableId])
         cursor.execute(drop)
         conn.commit()
@@ -133,7 +170,7 @@ def delete_table(tableId):
 modify_column_cmd = '''ALTER TABLE {} CHANGE `{}` `{}` text;'''
 
 
-def modifyColumn(tableId, oldCol, newCol):
+def modifyColumn(tableId, oldCol, newCol, userId):
     if oldCol == 'id':
         abort(400, 'Cannot remove this column')
 
@@ -146,6 +183,15 @@ def modifyColumn(tableId, oldCol, newCol):
     conn = db.conn()
     cursor = conn.cursor()
     cursor.execute(cmd)
+    
+    cursor.execute(check_tracking_cmd, [tableId])
+    if cursor.fetchall() == tracking_disabled:
+        return
+
+    args = [tableId, 0, "Column '" + oldCol + "'", "Column '" + newCol + "'", userId, time(), 6]
+
+    cursor.execute(insert_history_cmd, args)
+    conn.commit()
 
 
 get_table_columns_cmd = '''select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = %s;'''
@@ -162,8 +208,9 @@ def getColumns(tableId):
 
 modify_table_name_cmd = '''UPDATE Tables SET tableName = %s where tableId = %s;'''
 
+check_tracking_special = 'SELECT * FROM Tables WHERE tableId = %s;'
 
-def modifyTableName(tableId, name):
+def modifyTableName(tableId, name, userId):
     conn = db.conn()
     cursor = conn.cursor()
 
@@ -171,6 +218,12 @@ def modifyTableName(tableId, name):
         abort(400, 'This table does not exist')
 
     try:
+        cursor.execute(check_tracking_special, [tableId])
+        res = cursor.fetchone()
+        if res[2] == 1:
+            args = [tableId, 0, "Table '" + res[1] + "'", "Table '" + name + "'", userId, time(), 0]
+            cursor.execute(insert_history_cmd, args)
+
         cursor.execute(modify_table_name_cmd, [name, tableId])
         conn.commit()
     except Exception as e:
@@ -230,16 +283,36 @@ def addEntry(data):
     insert_cmd += '%s);'
 
     cursor.execute(insert_cmd, tuple(row))
+    id = cursor.lastrowid
+
+    cursor.execute(check_tracking_cmd, [data['tableId']])
+    if cursor.fetchall() == tracking_disabled:
+        conn.commit()
+        return True
+    
+    args = [data['tableId'], id, "", str(data['contents']), data['userId'], time(), 1]
+
+    cursor.execute(insert_history_cmd, args)
     
     conn.commit()
     return True
 
 
-def removeEntry(table, row):
+def removeEntry(table, row, user):
     conn = db.conn()
     cursor = conn.cursor()
 
     delete_cmd = 'DELETE FROM table_%s WHERE id = %s;'
+
+    cursor.execute(check_tracking_cmd, [table])
+    if cursor.fetchall() == tracking_enabled:
+        cursor.execute(get_row_cmd, [int(table), int(row)])
+        res = cursor.fetchone()
+        res = res[1:]
+
+        args = [table, row, str(res), "", user, time(), 2]
+
+        cursor.execute(insert_history_cmd, args)
 
     try:
         cursor.execute(delete_cmd, [table, row])
@@ -273,6 +346,16 @@ def modifyEntry(data):
         update_cmd += res[i][0] + ' = %s, '
         row.append(data['contents'][i])
 
+    cursor.execute(check_tracking_cmd, [data['tableId']])
+    if cursor.fetchall() == tracking_enabled:
+        cursor.execute(get_row_cmd, [data['tableId'], data['contents'][0]])
+        resp = cursor.fetchone()
+        resp = resp[1:]
+
+        args = [data['tableId'], data['contents'][0], str(resp), str(data['contents'][1:]), data['userId'], time(), 3]
+
+        cursor.execute(insert_history_cmd, args)
+
     update_cmd = update_cmd[0 : len(update_cmd) - 2]
     update_cmd += ' WHERE id = %s'
     row.append(data['contents'][0])
@@ -282,3 +365,51 @@ def modifyEntry(data):
     conn.commit()
     return True
 
+def track(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    track_cmd = 'UPDATE Tables SET trackHistory = 1 WHERE tableId = %s;'
+    
+    cursor.execute(track_cmd, [id])
+
+    conn.commit()
+    return True
+
+
+def untrack(id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    untrack_cmd = 'UPDATE Tables SET trackHistory = 0 WHERE tableId = %s;'
+    delete_cmd = 'DELETE FROM TableHistory WHERE tableId =  %s;'
+    
+    cursor.execute(delete_cmd, [id])
+    cursor.execute(untrack_cmd, [id])
+
+    conn.commit()
+    return True
+
+
+def itemHistory(table, id):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    item_history_cmd = 'SELECT * FROM TableHistory WHERE tableId = %s AND rowId = %s ORDER BY changeId DESC;'
+
+    cursor.execute(item_history_cmd, [table, id])
+    res = cursor.fetchall()
+
+    return res
+
+
+def history(table):
+    conn = db.conn()
+    cursor = conn.cursor()
+
+    history_cmd = 'SELECT * FROM TableHistory WHERE tableId = %s;'
+    
+    cursor.execute(history_cmd, [table])
+    res = cursor.fetchall()
+
+    return res
