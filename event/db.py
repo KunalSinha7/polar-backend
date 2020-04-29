@@ -86,10 +86,12 @@ def delete(id):
     cursor = conn.cursor()
 
     delete_cmd = 'DELETE FROM Event WHERE eventId = %s;'
-    drop_cmd = 'DROP TABLE if exists event_%s'
+    drop_cmd = 'DROP TABLE if exists event_%s;'
+    drop_check_cmd = 'DROP TABLE if exists check_in_event_%s;'
 
     cursor.execute(delete_cmd, [id])
     cursor.execute(drop_cmd, [int(id)])
+    cursor.execute(drop_check_cmd, [int(id)])
 
     conn.commit()
     return True
