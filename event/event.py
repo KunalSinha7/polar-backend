@@ -274,10 +274,12 @@ def colType():
     out = {}
 
     for c in ecol:
-        out[c] = False
-    
-    for c in col:
         out[c] = True
+        print('event col ' + c)
+
+    for c in col:
+        out[c] = False
+        print('r col '+ c)
 
 
     return jsonify(out)
