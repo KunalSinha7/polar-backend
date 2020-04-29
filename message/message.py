@@ -193,6 +193,7 @@ def eventCheckIn():
     users = db.get_check_in_users(data['eventId'])
     mtype = data['type']
 
+
     for u in users:
         if mtype == 'email' or mtype == 'both':
             subject = 'A message from polar'
