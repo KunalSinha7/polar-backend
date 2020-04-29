@@ -275,12 +275,13 @@ class TableTestCase(BaseTestCase):
             "auth": self.get_admin_user()
         })
 
+
         self.assertEqual(response.status_code, 400)
 
         response = self.post('table/create', {
             "auth": self.get_admin_user(),
             "tableName": "my table name",
-            "columns": ["col 1", 'col 2', 'col 3']
+            "columns": ["col1", 'col2', 'col3']
         })
 
         self.assertEqual(response.status_code, 200)
@@ -326,47 +327,6 @@ class TableTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertGreaterEqual(len(response.get_json()), 2)
 
-    def test_delete_table(self):
-        table_name = self.rand_string(50)
-
-        response = self.post('table/create', {
-            "auth": self.get_admin_user(),
-            "tableName": table_name,
-            "columns": [self.rand_string(10), self.rand_string(20), self.rand_string(30)]
-        })
-
-        response = self.post('/table/all', {
-            "auth": self.get_admin_user()
-        })
-
-        data = response.get_json()
-
-        table_id = -1
-        for a in data:
-            if a[1] == table_name:
-                table_id = a[0]
-                break
-
-        if table_id == -1:
-            assert False
-
-        response = self.post('table/delete', {
-            "auth": self.get_admin_user(),
-            "tableId": table_id
-        })
-
-        self.assertEqual(response.status_code, 200)
-
-        response = self.post('/table/all', {
-            "auth": self.get_admin_user()
-        })
-
-        data = response.get_json()
-
-        table_id = -1
-        for a in data:
-            if a[1] == table_name:
-                assert False
 
     def test_add_column(self):
         table_name = self.rand_string(50)

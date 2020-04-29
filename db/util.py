@@ -187,6 +187,7 @@ def setupTestDB():
     if max[0] is not None:
       for i in range(0, max[0] + 1):
         cursor.execute('DROP TABLE if exists table_' + str(i) + ';')
+        print("dropping")
 
     cursor.execute('SET FOREIGN_KEY_CHECKS = 1;')
 
